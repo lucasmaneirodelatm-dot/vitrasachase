@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VITRASA CHASE - IA</title>
+<style>
+body { font-family: Arial; text-align:center; padding:20px; background:#fafafa; }
+select, input { padding:10px; margin:8px; width:240px; }
+button { padding:12px; background:#009944; color:white; border:none; border-radius:10px; }
+</style>
+</head>
+<body>
+
+<h1>🤖 Jugar contra IA</h1>
+
+<label>Tu nombre</label>
+<br>
+<input id="player">
+
+<br><br>
+<label>Elige dificultad IA</label>
+<br>
+<select id="level">
+    <option value="1">IA Nivel 1</option>
+    <option value="2">IA Nivel 2</option>
+    <option value="3">IA Nivel 3</option>
+    <option value="4">IA Nivel 4</option>
+</select>
+
+<br><br>
+<label>Tu rol</label>
+<br>
+<select id="rol">
+    <option value="fugitivo">🚐 Fugitivo</option>
+    <option value="perseguidor">🚓 Perseguidor</option>
+</select>
+
+<br><br>
+
+<button onclick="startIA()">Iniciar partida</button>
+
+<script>
+function startIA(){
+    alert("IA lista. Lógica se añadirá luego.");
+}
+</script>
+
+</body>
+</html>
