@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>VITRASA CHASE - Local</title>
+
+<style>
+body { background:#eef; font-family:Arial; text-align:center; padding:20px; }
+input { padding:10px; width:240px; margin:8px; font-size:16px; }
+button { padding:12px 25px; font-size:18px; background:#0077cc; color:white; border:none; border-radius:10px; }
+button:hover { background:#005fa3; }
+</style>
+</head>
+
+<body>
+
+<img src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/Logo-principal.png" width="200">
+
+<h1>🏠 Juego Local</h1>
+<h2>Introduce los jugadores</h2>
+
+<input id="j1" placeholder="Jugador 1 (Fugitivo)">
+<br>
+<input id="j2" placeholder="Jugador 2 (Perseguidor)">
+<br>
+
+<button onclick="start()">🚀 Empezar</button>
+
+<script>
+function start() {
+    const j1 = document.getElementById("j1").value;
+    const j2 = document.getElementById("j2").value;
+
+    if (!j1 || !j2) {
+        alert("Rellena ambos nombres");
+        return;
+    }
+
+    // REDIRECCIÓN (lo programaremos luego)
+    alert("Partida local lista: " + j1 + " vs " + j2);
+}
+</script>
+
+</body>
+</html>
