@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>VITRASA CHASE - Online</title>
+<style>
+body { font-family:Arial; text-align:center; padding:20px; }
+button { padding:12px; background:#6633cc; color:white; border:none; border-radius:12px; }
+input { padding:10px; width:260px; margin:10px; }
+</style>
+</head>
+
+<body>
+
+<h1>🌐 Juego Online</h1>
+
+<h2>Crear partida</h2>
+<input id="player1" placeholder="Tu nombre">
+<select id="rol1">
+    <option value="fugitivo">Fugitivo</option>
+    <option value="perseguidor">Perseguidor</option>
+</select>
+<br>
+<button onclick="crear()">Crear sala</button>
+
+<hr>
+
+<h2>Unirse a partida</h2>
+<input id="linkin" placeholder="Pega aquí el enlace">
+<button onclick="join()">Entrar</button>
+
+<script>
+function crear(){
+    alert("Crear sala se programará con Socket.IO");
+}
+
+function join(){
+    alert("Unirse se programará luego.");
+}
+</script>
+
+</body>
+</html>
