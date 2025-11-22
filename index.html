@@ -10,48 +10,45 @@
         margin: 0;
         padding: 0;
         font-family: Arial, sans-serif;
-        background: #f0f0f0;
         text-align: center;
+        background: #f0f0f0;
     }
 
     #loader {
         position: fixed;
         top: 0; left: 0;
         width: 100%; height: 100%;
-        background: #fff;
+        background: white;
         display: flex;
         justify-content: center;
         align-items: center;
-        z-index: 100;
+        z-index: 99;
     }
 
     #loader img {
         width: 180px;
     }
 
-    .container {
-        display: none;
-        padding: 20px;
-    }
-
-    #logo {
-        width: 240px;
-        margin: 20px auto;
-    }
-
     .btn {
         display: block;
         width: 260px;
-        margin: 12px auto;
+        margin: 14px auto;
         padding: 15px;
         background: #0066cc;
-        color: white;
-        border-radius: 14px;
-        font-size: 20px;
+        color: #fff;
+        border-radius: 12px;
+        font-size: 18px;
         text-decoration: none;
+        cursor: pointer;
     }
+    .btn:hover { background: #004c99; }
 
-    .btn:hover { background: #004a99; }
+    .input {
+        width: 240px;
+        padding: 10px;
+        font-size: 16px;
+        margin-bottom: 12px;
+    }
 </style>
 </head>
 
@@ -59,31 +56,177 @@
 
 <!-- LOADER -->
 <div id="loader">
-    <img src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/LoaderAvanza.gif">
+    <img src="LoaderAvanza.gif" alt="loader">
 </div>
 
-<!-- CONTENIDO PRINCIPAL -->
-<div class="container" id="main">
-
-    <img id="logo"
-    src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/Logo-principal.png">
-
-    <h1>🚌 Vitrasa Chase</h1>
-    <h3>Juego de persecución multijugador por las calles de Vigo</h3>
-
-    <a class="btn" href="local.html">🏠 Juego Local</a>
-    <a class="btn" href="ia.html">🤖 Contra IA</a>
-    <a class="btn" href="online.html">🌐 Juego Online</a>
-
-</div>
+<!-- CONTENIDO DINÁMICO -->
+<div id="app"></div>
 
 <script>
-window.onload = () => {
-    setTimeout(() => {
-        document.getElementById("loader").style.display = "none";
-        document.getElementById("main").style.display = "block";
-    }, 1500); // DE MOMENTO 1.5s HASTA QUE HAGAMOS EL LOADER REAL
-};
+/* ============================================================
+   SISTEMA DE RUTAS (UN SOLO ARCHIVO PARA TODO)
+   ============================================================ */
+
+function qs() {
+    const p = new URLSearchParams(location.search);
+    return Object.fromEntries(p.entries());
+}
+
+function screen(content) {
+    document.getElementById("app").innerHTML = content;
+    document.getElementById("loader").style.display = "none";
+}
+
+/* ============================================================
+   MENÚ PRINCIPAL
+   ============================================================ */
+function showMainMenu() {
+    screen(`
+        <img src="Logo-principal.png" style="width:180px;margin:20px auto">
+
+        <h1>🚌 Vitrasa Chase</h1>
+        <h2>Juego de persecución multijugador por Vigo</h2>
+
+        <a class="btn" href="?mode=local">🏠 Juego Local</a>
+        <a class="btn" href="?mode=ia">🤖 Contra IA</a>
+        <a class="btn" href="?mode=online&create=true">🌐 Juego Online</a>
+    `);
+}
+
+/* ============================================================
+   FORMULARIO LOCAL
+   ============================================================ */
+function showLocalForm() {
+    screen(`
+        <h1>🏠 Juego Local</h1>
+
+        <input id="j1" class="input" placeholder="Jugador 1 (fugitivo)">
+        <input id="j2" class="input" placeholder="Jugador 2 (perseguidor)">
+
+        <button class="btn" onclick="startLocal()">Empezar partida</button>
+    `);
+}
+
+/* ============================================================
+   IA: elegir nombre y rol
+   ============================================================ */
+function showIAForm() {
+    screen(`
+        <h1>🤖 Contra IA</h1>
+
+        <input id="ia_name" class="input" placeholder="Tu nombre">
+        
+        <select id="ia_role" class="input">
+            <option value="fugitivo">Fugitivo</option>
+            <option value="perseguidor">Perseguidor</option>
+        </select>
+
+        <button class="btn" onclick="startIA()">Empezar</button>
+    `);
+}
+
+/* ============================================================
+   CREAR SALA (ONLINE)
+   ============================================================ */
+function showCreateRoom() {
+    screen(`
+        <h1>🌐 Crear sala</h1>
+
+        <input id="creatorName" class="input" placeholder="Tu nombre">
+
+        <select id="creatorRole" class="input">
+            <option value="fugitivo">Fugitivo</option>
+            <option value="perseguidor">Perseguidor</option>
+        </select>
+
+        <button class="btn" onclick="createRoom()">Crear sala</button>
+    `);
+}
+
+/* ============================================================
+   LÓGICA DE PARTIDAS
+   ============================================================ */
+
+function generateRoom() {
+    return Math.random().toString(36).substring(2, 7).toUpperCase();
+}
+
+/* LOCAL */
+function startLocal() {
+    const j1 = document.getElementById("j1").value.trim();
+    const j2 = document.getElementById("j2").value.trim();
+    if (!j1 || !j2) return alert("Rellena los dos nombres.");
+
+    // Redirigir a la partida local
+    location.href = `game.html?mode=local&j1=${encodeURIComponent(j1)}&j2=${encodeURIComponent(j2)}`;
+}
+
+/* IA */
+function startIA() {
+    const name = document.getElementById("ia_name").value.trim();
+    const role = document.getElementById("ia_role").value;
+
+    if (!name) return alert("Escribe tu nombre.");
+
+    location.href = `game.html?mode=ia&name=${encodeURIComponent(name)}&role=${role}`;
+}
+
+/* CREAR SALA */
+function createRoom() {
+    const name = document.getElementById("creatorName").value.trim();
+    const role = document.getElementById("creatorRole").value;
+
+    if (!name) return alert("Escribe tu nombre.");
+
+    const room = generateRoom();
+
+    // Guardamos sala en localStorage
+    localStorage.setItem("room_" + room, JSON.stringify({
+        creator: name,
+        creatorRole: role
+    }));
+
+    // Redirigir a la sala creada
+    location.href = `?room=${room}&host=true`;
+}
+
+/* ENTRAR A SALA POR ENLACE */
+function joinRoom(room) {
+    const raw = localStorage.getItem("room_" + room);
+    if (!raw) {
+        screen("<h1>❌ Sala no encontrada</h1>");
+        return;
+    }
+
+    const info = JSON.parse(raw);
+
+    // Invitado tiene rol opuesto
+    const opposite =
+        info.creatorRole === "fugitivo" ? "perseguidor" : "fugitivo";
+
+    // Redirigir al juego
+    location.href =
+        `game.html?mode=online&room=${room}` +
+        `&host=${info.creator}` +
+        `&role=${opposite}`;
+}
+
+/* ============================================================
+   ROUTER AUTOMÁTICO
+   ============================================================ */
+
+function router() {
+    const p = qs();
+
+    if (p.room) return joinRoom(p.room);
+    if (p.mode === "local") return showLocalForm();
+    if (p.mode === "ia") return showIAForm();
+    if (p.mode === "online" && p.create === "true") return showCreateRoom();
+
+    return showMainMenu();
+}
+
+window.onload = router;
 </script>
 
 </body>
