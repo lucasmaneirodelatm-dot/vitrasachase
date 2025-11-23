@@ -1,3 +1,4 @@
+cat > logic.js <<'EOF'
 // logic.js - carga recursos, gestiona audio y simulador de llegadas
 // Coloca este archivo en la misma carpeta que index.html y bus.html
 
