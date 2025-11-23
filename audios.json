@@ -1,0 +1,9 @@
+{
+  "locucion_proxima_parada": "https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/locucion_proxima_parada.mp3",
+  "proxima_parada_text": "https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/proxima_parada.mp3",
+  "L11": "https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/L11.mp3",
+  "stops": {
+    "6940": "https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/L6940.mp3",
+    "6950": "https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/L6950.mp3",
+  }
+}
