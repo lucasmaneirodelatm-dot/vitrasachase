@@ -1,233 +1,119 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>VITRASA CHASE</title>
-
+<link rel="icon" href="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/logo_vitrasa.png">
 <style>
-    body {
-        margin: 0;
-        padding: 0;
-        font-family: Arial, sans-serif;
-        text-align: center;
-        background: #f0f0f0;
-    }
-
-    #loader {
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background: white;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 99;
-    }
-
-    #loader img {
-        width: 180px;
-    }
-
-    .btn {
-        display: block;
-        width: 260px;
-        margin: 14px auto;
-        padding: 15px;
-        background: #0066cc;
-        color: #fff;
-        border-radius: 12px;
-        font-size: 18px;
-        text-decoration: none;
-        cursor: pointer;
-    }
-    .btn:hover { background: #004c99; }
-
-    .input {
-        width: 240px;
-        padding: 10px;
-        font-size: 16px;
-        margin-bottom: 12px;
-    }
+  :root{--blue:#0066cc;--blue-dark:#004c99}
+  body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#0f1724;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh}
+  /* Loader full screen */
+  #loader{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#fff;z-index:999}
+  #loader img{width:220px;height:auto;display:block}
+  /* Main app */
+  #app{display:none;max-width:980px;width:100%;padding:28px;box-sizing:border-box}
+  .card{background:linear-gradient(180deg,#121827,#0b1220);padding:22px;border-radius:12px;box-shadow:0 6px 30px rgba(0,0,0,0.5)}
+  #logo{display:block;margin:0 auto 18px auto;width:240px;height:auto}
+  h1{margin:6px 0 12px 0;text-align:center;font-size:28px;letter-spacing:1px}
+  p.lead{text-align:center;color:#b8c6d6;margin:0 0 18px 0}
+  .modes{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+  .mode{width:240px;border-radius:10px;padding:14px;background:rgba(255,255,255,0.03);cursor:pointer;text-align:left}
+  .mode.disabled{opacity:.4;cursor:not-allowed}
+  .mode h3{margin:0 0 8px 0;font-size:18px}
+  .mode p{margin:0;font-size:13px;color:#9fb0c8}
+  form{margin-top:18px;display:flex;flex-direction:column;gap:10px;align-items:center}
+  input[type="text"], select{width:260px;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);color:#fff}
+  button.primary{width:260px;padding:12px;border-radius:10px;border:none;background:var(--blue);color:#fff;font-weight:600;cursor:pointer}
+  button.secondary{width:260px;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#d9e6fb;cursor:pointer}
+  .small{font-size:12px;color:#93a6be;text-align:center;margin-top:8px}
 </style>
 </head>
-
 <body>
 
-<!-- LOADER -->
+<!-- LOADER: debe mostrarse hasta que se carguen los recursos -->
 <div id="loader">
-    <img src="LoaderAvanza.gif" alt="loader">
+  <img id="loaderGif" src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/LoaderAvanza.gif" alt="loader">
 </div>
 
-<!-- CONTENIDO DINÁMICO -->
-<div id="app"></div>
+<!-- APP -->
+<div id="app" role="main">
+  <div class="card">
+    <img id="logo" src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/Logo-principal.png" alt="VITRASA CHASE">
+    <h1>🚌 VITRASA CHASE</h1>
+    <p class="lead">Juego de persecución multijugador por las calles de Vigo</p>
 
+    <div class="modes">
+      <div class="mode" id="mode-local" data-mode="local">
+        <h3>🏠 Juego Local</h3>
+        <p>Dos jugadores en el mismo dispositivo — no se pregunta rol.</p>
+      </div>
+
+      <div class="mode" id="mode-ia" data-mode="ia">
+        <h3>🤖 Contra IA</h3>
+        <p>Juega contra una IA. Tú eliges tu rol; la IA toma el otro.</p>
+      </div>
+
+      <div class="mode mode disabled" title="Online no habilitado">
+        <h3>🌐 Juego Online</h3>
+        <p>Multijugador en red — deshabilitado en esta versión.</p>
+      </div>
+    </div>
+
+    <!-- FORMULARIOS (se muestran dinámicamente con JS) -->
+    <form id="form-local" style="display:none" onsubmit="return startLocal(event)">
+      <h3 style="margin:8px 0">Juego Local</h3>
+      <input id="local_j1" type="text" placeholder="Jugador 1 — nombre (elige posición al entrar)" required>
+      <input id="local_j2" type="text" placeholder="Jugador 2 — nombre" required>
+      <button class="primary" type="submit">🚀 Empezar partida local</button>
+      <div class="small">En local no se pregunta rol; cada jugador al entrar elige dónde posicionarse.</div>
+    </form>
+
+    <form id="form-ia" style="display:none" onsubmit="return startIA(event)">
+      <h3 style="margin:8px 0">Contra IA</h3>
+      <label style="font-size:13px;color:#9fb0c8">Tu rol</label>
+      <select id="ia_role" required>
+        <option value="fugitivo">Fugitivo</option>
+        <option value="perseguidor">Perseguidor</option>
+      </select>
+      <label style="font-size:13px;color:#9fb0c8;margin-top:8px">Dificultad IA</label>
+      <select id="ia_level" required>
+        <option value="easy">Fácil</option>
+        <option value="normal" selected>Normal</option>
+        <option value="hard">Difícil</option>
+      </select>
+      <input id="ia_name" type="text" placeholder="Tu nombre" required>
+      <button class="primary" type="submit">🤖 Empezar vs IA</button>
+      <div class="small">La IA toma el rol contrario.</div>
+    </form>
+
+  </div>
+</div>
+
+<script src="logic.js"></script>
 <script>
-/* ============================================================
-   SISTEMA DE RUTAS (UN SOLO ARCHIVO PARA TODO)
-   ============================================================ */
+/* index UI logic (usa functions definidas en logic.js) */
+document.addEventListener('DOMContentLoaded', () => {
+  // show app when resources ready (logic.js will call window.assetsReady())
+  window.assetsReady = () => {
+    document.getElementById('loader').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+  };
 
-function qs() {
-    const p = new URLSearchParams(location.search);
-    return Object.fromEntries(p.entries());
-}
+  // mode selectors
+  document.getElementById('mode-local').addEventListener('click', () => {
+    document.getElementById('form-local').style.display = 'flex';
+    document.getElementById('form-ia').style.display = 'none';
+  });
+  document.getElementById('mode-ia').addEventListener('click', () => {
+    document.getElementById('form-ia').style.display = 'flex';
+    document.getElementById('form-local').style.display = 'none';
+  });
+});
 
-function screen(content) {
-    document.getElementById("app").innerHTML = content;
-    document.getElementById("loader").style.display = "none";
-}
-
-/* ============================================================
-   MENÚ PRINCIPAL
-   ============================================================ */
-function showMainMenu() {
-    screen(`
-        <img src="Logo-principal.png" style="width:180px;margin:20px auto">
-
-        <h1>🚌 Vitrasa Chase</h1>
-        <h2>Juego de persecución multijugador por Vigo</h2>
-
-        <a class="btn" href="?mode=local">🏠 Juego Local</a>
-        <a class="btn" href="?mode=ia">🤖 Contra IA</a>
-        <a class="btn" href="?mode=online&create=true">🌐 Juego Online</a>
-    `);
-}
-
-/* ============================================================
-   FORMULARIO LOCAL
-   ============================================================ */
-function showLocalForm() {
-    screen(`
-        <h1>🏠 Juego Local</h1>
-
-        <input id="j1" class="input" placeholder="Jugador 1 (fugitivo)">
-        <input id="j2" class="input" placeholder="Jugador 2 (perseguidor)">
-
-        <button class="btn" onclick="startLocal()">Empezar partida</button>
-    `);
-}
-
-/* ============================================================
-   IA: elegir nombre y rol
-   ============================================================ */
-function showIAForm() {
-    screen(`
-        <h1>🤖 Contra IA</h1>
-
-        <input id="ia_name" class="input" placeholder="Tu nombre">
-        
-        <select id="ia_role" class="input">
-            <option value="fugitivo">Fugitivo</option>
-            <option value="perseguidor">Perseguidor</option>
-        </select>
-
-        <button class="btn" onclick="startIA()">Empezar</button>
-    `);
-}
-
-/* ============================================================
-   CREAR SALA (ONLINE)
-   ============================================================ */
-function showCreateRoom() {
-    screen(`
-        <h1>🌐 Crear sala</h1>
-
-        <input id="creatorName" class="input" placeholder="Tu nombre">
-
-        <select id="creatorRole" class="input">
-            <option value="fugitivo">Fugitivo</option>
-            <option value="perseguidor">Perseguidor</option>
-        </select>
-
-        <button class="btn" onclick="createRoom()">Crear sala</button>
-    `);
-}
-
-/* ============================================================
-   LÓGICA DE PARTIDAS
-   ============================================================ */
-
-function generateRoom() {
-    return Math.random().toString(36).substring(2, 7).toUpperCase();
-}
-
-/* LOCAL */
-function startLocal() {
-    const j1 = document.getElementById("j1").value.trim();
-    const j2 = document.getElementById("j2").value.trim();
-    if (!j1 || !j2) return alert("Rellena los dos nombres.");
-
-    // Redirigir a la partida local
-    location.href = `game.html?mode=local&j1=${encodeURIComponent(j1)}&j2=${encodeURIComponent(j2)}`;
-}
-
-/* IA */
-function startIA() {
-    const name = document.getElementById("ia_name").value.trim();
-    const role = document.getElementById("ia_role").value;
-
-    if (!name) return alert("Escribe tu nombre.");
-
-    location.href = `game.html?mode=ia&name=${encodeURIComponent(name)}&role=${role}`;
-}
-
-/* CREAR SALA */
-function createRoom() {
-    const name = document.getElementById("creatorName").value.trim();
-    const role = document.getElementById("creatorRole").value;
-
-    if (!name) return alert("Escribe tu nombre.");
-
-    const room = generateRoom();
-
-    // Guardamos sala en localStorage
-    localStorage.setItem("room_" + room, JSON.stringify({
-        creator: name,
-        creatorRole: role
-    }));
-
-    // Redirigir a la sala creada
-    location.href = `?room=${room}&host=true`;
-}
-
-/* ENTRAR A SALA POR ENLACE */
-function joinRoom(room) {
-    const raw = localStorage.getItem("room_" + room);
-    if (!raw) {
-        screen("<h1>❌ Sala no encontrada</h1>");
-        return;
-    }
-
-    const info = JSON.parse(raw);
-
-    // Invitado tiene rol opuesto
-    const opposite =
-        info.creatorRole === "fugitivo" ? "perseguidor" : "fugitivo";
-
-    // Redirigir al juego
-    location.href =
-        `game.html?mode=online&room=${room}` +
-        `&host=${info.creator}` +
-        `&role=${opposite}`;
-}
-
-/* ============================================================
-   ROUTER AUTOMÁTICO
-   ============================================================ */
-
-function router() {
-    const p = qs();
-
-    if (p.room) return joinRoom(p.room);
-    if (p.mode === "local") return showLocalForm();
-    if (p.mode === "ia") return showIAForm();
-    if (p.mode === "online" && p.create === "true") return showCreateRoom();
-
-    return showMainMenu();
-}
-
-window.onload = router;
+// navigation functions used by forms (implemented in logic.js)
+function startLocal(e){ return window.startLocalGame && window.startLocalGame(e); }
+function startIA(e){ return window.startIAGame && window.startIAGame(e); }
 </script>
-
 </body>
 </html>
