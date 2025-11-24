@@ -1,120 +1,173 @@
-cat > index.html <<'EOF'
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>VITRASA CHASE</title>
-<link rel="icon" href="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/logo_vitrasa.png">
 <style>
-  :root{--blue:#0066cc;--blue-dark:#004c99}
-  body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#0f1724;color:#fff;display:flex;align-items:center;justify-content:center;height:100vh}
-  /* Loader full screen */
-  #loader{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#fff;z-index:999}
-  #loader img{width:220px;height:auto;display:block}
-  /* Main app */
-  #app{display:none;max-width:980px;width:100%;padding:28px;box-sizing:border-box}
-  .card{background:linear-gradient(180deg,#121827,#0b1220);padding:22px;border-radius:12px;box-shadow:0 6px 30px rgba(0,0,0,0.5)}
-  #logo{display:block;margin:0 auto 18px auto;width:240px;height:auto}
-  h1{margin:6px 0 12px 0;text-align:center;font-size:28px;letter-spacing:1px}
-  p.lead{text-align:center;color:#b8c6d6;margin:0 0 18px 0}
-  .modes{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
-  .mode{width:240px;border-radius:10px;padding:14px;background:rgba(255,255,255,0.03);cursor:pointer;text-align:left}
-  .mode.disabled{opacity:.4;cursor:not-allowed}
-  .mode h3{margin:0 0 8px 0;font-size:18px}
-  .mode p{margin:0;font-size:13px;color:#9fb0c8}
-  form{margin-top:18px;display:flex;flex-direction:column;gap:10px;align-items:center}
-  input[type="text"], select{width:260px;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);color:#fff}
-  button.primary{width:260px;padding:12px;border-radius:10px;border:none;background:var(--blue);color:#fff;font-weight:600;cursor:pointer}
-  button.secondary{width:260px;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:#d9e6fb;cursor:pointer}
-  .small{font-size:12px;color:#93a6be;text-align:center;margin-top:8px}
+  :root{--accent:#004c99;--bg:#0f1720;--card:#0b1220;--muted:#99a3b2;--white:#fff}
+  body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(180deg,#071326,#0b1726);color:var(--white);display:flex;align-items:center;justify-content:center;height:100vh}
+  #loader{position:fixed;inset:0;background:#fff;display:flex;align-items:center;justify-content:center;z-index:9999}
+  #loader img{width:200px;height:auto}
+  .app{display:none;width:980px;max-width:96%;padding:28px;border-radius:12px;background:rgba(0,0,0,0.25);box-shadow:0 10px 30px rgba(0,0,0,0.6)}
+  header{display:flex;align-items:center;gap:18px}
+  #logo{width:140px}
+  h1{margin:0;font-size:26px;letter-spacing:1px}
+  p.lead{color:var(--muted);margin:6px 0 20px}
+  .modes{display:flex;gap:12px;flex-wrap:wrap}
+  .mode{flex:1;min-width:220px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:18px;border-radius:10px;text-align:left;cursor:pointer;border:1px solid rgba(255,255,255,0.03)}
+  .mode h3{margin:0 0 6px}
+  .mode p{margin:0;color:var(--muted)}
+  .cta{display:inline-block;margin-top:12px;padding:10px 14px;border-radius:8px;background:var(--accent);color:#fff;text-decoration:none}
+  #formArea{margin-top:18px}
+  .hidden{display:none}
+  label{display:block;margin:8px 0 6px;color:var(--muted);font-size:14px}
+  input[type="text"], select{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02);color:var(--white)}
+  footer{margin-top:18px;color:var(--muted);font-size:13px}
 </style>
 </head>
 <body>
 
-<!-- LOADER: debe mostrarse hasta que se carguen los recursos -->
+<!-- Loader GIF (se debe ocultar cuando todos los recursos estén listos) -->
 <div id="loader">
-  <img id="loaderGif" src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/LoaderAvanza.gif" alt="loader">
+  <img src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/LoaderAvanza.gif" alt="loader">
 </div>
 
-<!-- APP -->
-<div id="app" role="main">
-  <div class="card">
-    <img id="logo" src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/Logo-principal.png" alt="VITRASA CHASE">
-    <h1>🚌 VITRASA CHASE</h1>
-    <p class="lead">Juego de persecución multijugador por las calles de Vigo</p>
-
-    <div class="modes">
-      <div class="mode" id="mode-local" data-mode="local">
-        <h3>🏠 Juego Local</h3>
-        <p>Dos jugadores en el mismo dispositivo — no se pregunta rol.</p>
-      </div>
-
-      <div class="mode" id="mode-ia" data-mode="ia">
-        <h3>🤖 Contra IA</h3>
-        <p>Juega contra una IA. Tú eliges tu rol; la IA toma el otro.</p>
-      </div>
-
-      <div class="mode mode disabled" title="Online no habilitado">
-        <h3>🌐 Juego Online</h3>
-        <p>Multijugador en red — deshabilitado en esta versión.</p>
-      </div>
+<div class="app" id="app">
+  <header>
+    <img id="logo" src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/Logo-principal.png" alt="logo">
+    <div>
+      <h1>🚌 VITRASA CHASE</h1>
+      <p class="lead">Juego de persecución multijugador por las calles de Vigo</p>
     </div>
+  </header>
 
-    <!-- FORMULARIOS (se muestran dinámicamente con JS) -->
-    <form id="form-local" style="display:none" onsubmit="return startLocal(event)">
-      <h3 style="margin:8px 0">Juego Local</h3>
-      <input id="local_j1" type="text" placeholder="Jugador 1 — nombre (elige posición al entrar)" required>
-      <input id="local_j2" type="text" placeholder="Jugador 2 — nombre" required>
-      <button class="primary" type="submit">🚀 Empezar partida local</button>
-      <div class="small">En local no se pregunta rol; cada jugador al entrar elige dónde posicionarse.</div>
-    </form>
+  <main>
+    <section>
+      <h2 style="margin-top:16px">🎮 Selecciona cómo quieres jugar</h2>
+      <div class="modes">
+        <div class="mode" id="mode-local" data-mode="local">
+          <h3>🏠 Juego Local</h3>
+          <p>Dos jugadores en el mismo dispositivo. No se pregunta rol (se asignan al iniciar).</p>
+          <a class="cta" href="#" onclick="selectMode('local');return false;">Elegir Juego Local</a>
+        </div>
 
-    <form id="form-ia" style="display:none" onsubmit="return startIA(event)">
-      <h3 style="margin:8px 0">Contra IA</h3>
-      <label style="font-size:13px;color:#9fb0c8">Tu rol</label>
-      <select id="ia_role" required>
+        <div class="mode" id="mode-ia" data-mode="ia">
+          <h3>🤖 Contra IA</h3>
+          <p>El jugador elige rol; la IA toma el otro.</p>
+          <a class="cta" href="#" onclick="selectMode('ia');return false;">Jugar contra IA</a>
+        </div>
+
+        <div class="mode" id="mode-online" data-mode="online">
+          <h3>🌐 Juego Online</h3>
+          <p>Crear sala y enviar enlace. (Online: pendiente de servidor)</p>
+          <a class="cta" href="#" onclick="selectMode('online');return false;">Crear sala (Online)</a>
+        </div>
+      </div>
+
+      <div id="formArea" class="hidden">
+        <form id="mainForm" onsubmit="return onSubmitForm(event)">
+          <div id="formFields"></div>
+          <div style="margin-top:12px; text-align:right;">
+            <button type="submit" class="cta">Crear / Empezar</button>
+            <a href="#" style="margin-left:8px;color:var(--muted);text-decoration:none" onclick="resetToMenu();return false;">Volver</a>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer>Versión inicial · Local / IA funcionan sin servidor. Online requiere backend (más tarde).</footer>
+</div>
+
+<script>
+/* ---------- Configuración de rutas de datos (reemplazar con raw.github si lo subes) ---------- */
+const DATA_PATHS = {
+  paradas: '/mnt/data/paradas.json',
+  lineas: '/mnt/data/lineas.json',
+  buses:  '/mnt/data/buses.json'
+};
+/* ------------------------------------------------------------------------------------------- */
+
+/* Simulación de "recursos listos" -> oculta loader solo cuando fetch de paradas/lineas/buses responde.
+   Si tu deploy usa rutas diferentes cambia DATA_PATHS arriba. */
+async function waitResources() {
+  try {
+    const urls = Object.values(DATA_PATHS);
+    const checks = urls.map(u => fetch(u, {method:'GET'}));
+    await Promise.all(checks);
+  } catch(e){
+    // si fallan los fetch (p. ej. en local aún no existe), no bloqueamos: ocultamos loader pero indicamos aviso.
+    console.warn('No pude comprobar recursos; continúa igualmente (cambia rutas DATA_PATHS si es necesario).', e);
+  } finally {
+    document.getElementById('loader').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+  }
+}
+waitResources();
+
+/* UI handlers */
+let selectedMode = null;
+function selectMode(mode) {
+  selectedMode = mode;
+  document.getElementById('formArea').classList.remove('hidden');
+  const fields = document.getElementById('formFields');
+  fields.innerHTML = '';
+  if (mode === 'local') {
+    fields.innerHTML = `
+      <label>Jugador 1 — Nombre</label>
+      <input required name="j1" id="j1" type="text" placeholder="Jugador 1">
+      <label>Jugador 2 — Nombre</label>
+      <input required name="j2" id="j2" type="text" placeholder="Jugador 2">
+      <p style="color:var(--muted);font-size:13px;margin-top:8px">En local no se pregunta rol; ambos se colocan al inicio donde quieran.</p>
+    `;
+  } else if (mode === 'ia') {
+    fields.innerHTML = `
+      <label>Tu nombre</label><input required name="j1" id="j1" type="text" placeholder="Tu nombre">
+      <label>Elige tu rol</label>
+      <select name="role" id="role">
         <option value="fugitivo">Fugitivo</option>
         <option value="perseguidor">Perseguidor</option>
       </select>
-      <label style="font-size:13px;color:#9fb0c8;margin-top:8px">Dificultad IA</label>
-      <select id="ia_level" required>
+      <label>Nivel IA</label>
+      <select name="iaLevel" id="iaLevel">
         <option value="easy">Fácil</option>
         <option value="normal" selected>Normal</option>
         <option value="hard">Difícil</option>
       </select>
-      <input id="ia_name" type="text" placeholder="Tu nombre" required>
-      <button class="primary" type="submit">🤖 Empezar vs IA</button>
-      <div class="small">La IA toma el rol contrario.</div>
-    </form>
+    `;
+  } else if (mode === 'online') {
+    fields.innerHTML = `
+      <label>Tu nombre</label><input required name="j1" id="j1" type="text" placeholder="Tu nombre">
+      <label>Elegir rol (creador)</label>
+      <select name="role" id="role">
+        <option value="fugitivo">Fugitivo</option>
+        <option value="perseguidor">Perseguidor</option>
+      </select>
+      <p style="color:var(--muted);font-size:13px;margin-top:8px">Se generará un enlace de sala para compartir (requiere servidor).</p>
+    `;
+  }
+}
 
-  </div>
-</div>
+function onSubmitForm(e){
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target).entries());
+  // redirección simple según modo (usa querystring para pasar datos)
+  const q = new URLSearchParams({mode:selectedMode,...data}).toString();
+  if (selectedMode==='local' || selectedMode==='ia') {
+    // abrir juego local (bus.html) con params
+    window.location.href = `bus.html?${q}`;
+  } else {
+    // online: crear sala (por ahora redirige a bus.html, en futuro usar socket)
+    window.location.href = `bus.html?${q}&online=1`;
+  }
+}
 
-<script src="logic.js"></script>
-<script>
-/* index UI logic (usa functions definidas en logic.js) */
-document.addEventListener('DOMContentLoaded', () => {
-  // show app when resources ready (logic.js will call window.assetsReady())
-  window.assetsReady = () => {
-    document.getElementById('loader').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
-  };
-
-  // mode selectors
-  document.getElementById('mode-local').addEventListener('click', () => {
-    document.getElementById('form-local').style.display = 'flex';
-    document.getElementById('form-ia').style.display = 'none';
-  });
-  document.getElementById('mode-ia').addEventListener('click', () => {
-    document.getElementById('form-ia').style.display = 'flex';
-    document.getElementById('form-local').style.display = 'none';
-  });
-});
-
-// navigation functions used by forms (implemented in logic.js)
-function startLocal(e){ return window.startLocalGame && window.startLocalGame(e); }
-function startIA(e){ return window.startIAGame && window.startIAGame(e); }
+function resetToMenu(){
+  document.getElementById('formArea').classList.add('hidden');
+  selectedMode = null;
+}
 </script>
+
 </body>
 </html>
