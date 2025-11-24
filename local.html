@@ -3,42 +3,116 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>VITRASA CHASE - Local</title>
+<title>VITRASA CHASE - Juego Local</title>
 
 <style>
-body { background:#eef; font-family:Arial; text-align:center; padding:20px; }
-input { padding:10px; width:240px; margin:8px; font-size:16px; }
-button { padding:12px 25px; font-size:18px; background:#0077cc; color:white; border:none; border-radius:10px; }
-button:hover { background:#005fa3; }
+    body {
+        margin: 0;
+        padding: 0;
+        text-align: center;
+        background: #0b1220;
+        color: white;
+        font-family: Arial, sans-serif;
+    }
+
+    #loader {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%;
+        height: 100%;
+        background: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 999;
+    }
+
+    #loader img {
+        width: 200px;
+    }
+
+    #main {
+        display: none;
+        padding: 30px;
+    }
+
+    #logo {
+        width: 180px;
+        margin-bottom: 20px;
+    }
+
+    input {
+        width: 70%;
+        padding: 12px;
+        margin: 10px;
+        border-radius: 8px;
+        border: none;
+        font-size: 16px;
+    }
+
+    .btn {
+        display: block;
+        width: 70%;
+        margin: 20px auto;
+        padding: 15px;
+        background: #1e88e5;
+        border-radius: 10px;
+        text-decoration: none;
+        color: white;
+        font-size: 18px;
+        cursor: pointer;
+    }
+
+    .btn:hover {
+        background: #1667b8;
+    }
 </style>
 </head>
 
 <body>
 
-<img src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/Logo-principal.png" width="200">
+<div id="loader">
+    <img src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/LoaderAvanza.gif">
+</div>
 
-<h1>🏠 Juego Local</h1>
-<h2>Introduce los jugadores</h2>
+<div id="main">
+    <img id="logo" src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/Logo-principal.png">
 
-<input id="j1" placeholder="Jugador 1 (Fugitivo)">
-<br>
-<input id="j2" placeholder="Jugador 2 (Perseguidor)">
-<br>
+    <h1>🏠 Juego Local</h1>
+    <p>Introduce los dos jugadores:</p>
 
-<button onclick="start()">🚀 Empezar</button>
+    <input id="j1" type="text" placeholder="Jugador 1 (Fugitivo)">
+    <input id="j2" type="text" placeholder="Jugador 2 (Perseguidor)">
+
+    <button class="btn" onclick="startLocal()">
+        🚀 Empezar
+    </button>
+</div>
 
 <script>
-function start() {
-    const j1 = document.getElementById("j1").value;
-    const j2 = document.getElementById("j2").value;
+window.addEventListener("load", () => {
+    setTimeout(() => {
+        document.getElementById("loader").style.display = "none";
+        document.getElementById("main").style.display = "block";
+    }, 300);
+});
+
+function startLocal() {
+    const j1 = document.getElementById("j1").value.trim();
+    const j2 = document.getElementById("j2").value.trim();
 
     if (!j1 || !j2) {
-        alert("Rellena ambos nombres");
+        alert("Rellena ambos nombres.");
         return;
     }
 
-    // REDIRECCIÓN (lo programaremos luego)
-    alert("Partida local lista: " + j1 + " vs " + j2);
+    // Guardar datos para la partida local
+    sessionStorage.setItem("modo", "local");
+    sessionStorage.setItem("fugitivo", j1);
+    sessionStorage.setItem("perseguidor", j2);
+
+    // Redirigir a la primera parada
+    window.location.href = "parada.html?parada=6620"; // Ejemplo
 }
 </script>
 
