@@ -1,48 +1,135 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VITRASA CHASE - IA</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>VITRASA CHASE - Contra IA</title>
+
 <style>
-body { font-family: Arial; text-align:center; padding:20px; background:#fafafa; }
-select, input { padding:10px; margin:8px; width:240px; }
-button { padding:12px; background:#009944; color:white; border:none; border-radius:10px; }
+    body {
+        margin: 0;
+        padding: 0;
+        text-align: center;
+        background: #0b1220;
+        color: white;
+        font-family: Arial, sans-serif;
+    }
+
+    #loader {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%;
+        height: 100%;
+        background: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 999;
+    }
+
+    #loader img {
+        width: 200px;
+    }
+
+    #main {
+        display: none;
+        padding: 30px;
+    }
+
+    #logo {
+        width: 180px;
+        margin-bottom: 20px;
+    }
+
+    input, select {
+        width: 70%;
+        padding: 12px;
+        margin: 10px;
+        border-radius: 8px;
+        border: none;
+        font-size: 16px;
+    }
+
+    .btn {
+        display: block;
+        width: 70%;
+        margin: 20px auto;
+        padding: 15px;
+        background: #1e88e5;
+        border-radius: 10px;
+        text-decoration: none;
+        color: white;
+        font-size: 18px;
+        cursor: pointer;
+    }
+
+    .btn:hover {
+        background: #1667b8;
+    }
 </style>
 </head>
+
 <body>
 
-<h1>🤖 Jugar contra IA</h1>
+<div id="loader">
+    <img src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/LoaderAvanza.gif">
+</div>
 
-<label>Tu nombre</label>
-<br>
-<input id="player">
+<div id="main">
+    <img id="logo" src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/Logo-principal.png">
 
-<br><br>
-<label>Elige dificultad IA</label>
-<br>
-<select id="level">
-    <option value="1">IA Nivel 1</option>
-    <option value="2">IA Nivel 2</option>
-    <option value="3">IA Nivel 3</option>
-    <option value="4">IA Nivel 4</option>
-</select>
+    <h1>🤖 Contra IA</h1>
 
-<br><br>
-<label>Tu rol</label>
-<br>
-<select id="rol">
-    <option value="fugitivo">🚐 Fugitivo</option>
-    <option value="perseguidor">🚓 Perseguidor</option>
-</select>
+    <input id="nombre" type="text" placeholder="Tu nombre">
 
-<br><br>
+    <label>Tu rol:</label>
+    <select id="rol">
+        <option value="fugitivo">Fugitivo</option>
+        <option value="perseguidor">Perseguidor</option>
+    </select>
 
-<button onclick="startIA()">Iniciar partida</button>
+    <label>Nivel de IA:</label>
+    <select id="nivel">
+        <option value="1">Nivel 1 (Fácil)</option>
+        <option value="2">Nivel 2</option>
+        <option value="3">Nivel 3</option>
+        <option value="4">Nivel 4</option>
+        <option value="5">Nivel 5 (Difícil)</option>
+    </select>
+
+    <button class="btn" onclick="startIA()">
+        🚀 Empezar contra IA
+    </button>
+</div>
 
 <script>
-function startIA(){
-    alert("IA lista. Lógica se añadirá luego.");
+window.addEventListener("load", () => {
+    setTimeout(() => {
+        document.getElementById("loader").style.display = "none";
+        document.getElementById("main").style.display = "block";
+    }, 300);
+});
+
+function startIA() {
+    const nombre = document.getElementById("nombre").value.trim();
+    const rol = document.getElementById("rol").value;
+    const nivel = document.getElementById("nivel").value;
+
+    if (!nombre) {
+        alert("Pon tu nombre.");
+        return;
+    }
+
+    // Roles automáticos
+    const iaRol = rol === "fugitivo" ? "perseguidor" : "fugitivo";
+
+    sessionStorage.setItem("modo", "ia");
+    sessionStorage.setItem("jugador", nombre);
+    sessionStorage.setItem("rol", rol);
+    sessionStorage.setItem("iaRol", iaRol);
+    sessionStorage.setItem("iaNivel", nivel);
+
+    window.location.href = "parada.html?parada=6620";
 }
 </script>
 
