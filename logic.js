@@ -1,136 +1,115 @@
-cat > logic.js <<'EOF'
-// logic.js - carga recursos, gestiona audio y simulador de llegadas
-// Coloca este archivo en la misma carpeta que index.html y bus.html
+/* logic.js
+   Lógica compartida para VITRASA CHASE (local / IA / parada / bus)
+   EDITA las URLs de datos si las sirves desde otro sitio.
+*/
 
-/* CONFIG: audios.json URL (edítala si la mueves) */
-const AUDIOS_JSON = 'audios.json';
+// ----- Rutas a tus JSON (cámbialas solo si las guardas en otro sitio) -----
+const PARADAS_URL = 'https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/paradas.json';   // <-- ruta local subida por ti
+const LINEAS_URL  = 'https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/lineas.json';
+const BUSES_URL   = 'https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/mainbuses.json';
 
-/* Asset manager */
-const ASSETS = {
-  images: [
-    // logos/loader (ya en index.html/img tags) pero por si quieres pre-cache:
-    'https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/Logo-principal.png',
-    'https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/logo_vitrasa.png'
-  ],
-  audios: [] // se cargan desde audios.json
+// ---------- Utilities ----------
+function qs(name) {
+  name = name.replace(/[[]/, "\\[").replace(/[\]]/, "\\]");
+  const regex = new RegExp("[\\?&]" + name + "=([^&#]*)");
+  const results = regex.exec(location.search);
+  return results === null ? null : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
+async function loadJSON(url) {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (e) {
+    console.warn("No se pudo cargar JSON", url, e);
+    return null;
+  }
+}
+
+function formatLinesArray(arr) {
+  if (!arr) return '';
+  return arr.join(', ');
+}
+
+// Simula un "ahora" / próximos tiempos: si la entrada contiene 'proximas' o 'tiempos' usa eso.
+// Aquí convertimos cualquier valor "ahora" (string) para mostrar botón Coger.
+function nextArrivalLabel(t) {
+  if (t == null) return '—';
+  if (typeof t === 'string' && t.toLowerCase() === 'ahora') return 'ahora';
+  if (!isNaN(Number(t))) {
+    const n = Number(t);
+    if (n <= 0) return 'ahora';
+    return `${n} min`;
+  }
+  return String(t);
+}
+
+// Guarda/lee estado de la partida (sessionStorage)
+const GameState = {
+  get(key) { return sessionStorage.getItem(key); },
+  set(key, val) { sessionStorage.setItem(key, String(val)); },
+  setObj(key, obj) { sessionStorage.setItem(key, JSON.stringify(obj)); },
+  getObj(key) { const v = sessionStorage.getItem(key); return v ? JSON.parse(v) : null; },
+  clear() { sessionStorage.clear(); }
 };
 
-let audioCatalog = {}; // map stopId -> url
-let audioCache = {}; // Audio objects
+// Localiza parada en la lista por código (string o número)
+function findStopByCode(paradas, code) {
+  if (!paradas) return null;
+  return paradas.find(p => String(p.codigo || p.id) === String(code) || String(p.code) === String(code));
+}
 
-// Preload images & audios (audios load after audios.json)
-async function preloadAll() {
-  // preload images
-  await Promise.all(ASSETS.images.map(src => new Promise((res) => {
-    const img = new Image();
-    img.onload = res; img.onerror = res; img.src = src;
-  })));
+// Simula la llegada de buses (básico, expandible)
+// Devuelve una lista de "arribos" con {linea, inMin, tag}
+// Si la parada tiene un campo "proximas" lo usa, si no crea simulación.
+function computeArrivalsForStop(stop, lineas) {
+  const out = [];
+  if (!stop) return out;
 
-  // fetch audios.json
-  try {
-    const r = await fetch(AUDIOS_JSON + '?_=' + Date.now());
-    if (r.ok) {
-      const j = await r.json();
-      audioCatalog = j;
-      // preload common locutions (if present)
-      const toPreload = [];
-      if (j.locucion_proxima_parada) toPreload.push(j.locucion_proxima_parada);
-      if (j.proxima_parada_text) toPreload.push(j.proxima_parada_text);
-      // also preload stop audios (optional: we load lazily to save bandwidth)
-      toPreload.forEach(url => {
-        const a = new Audio(url);
-        a.preload = 'auto';
-        audioCache[url] = a;
-      });
+  // If stop has "proximas" array use it (expected: [{linea:"C1", tiempo:"ahora"},...])
+  if (Array.isArray(stop.proximas) && stop.proximas.length) {
+    for (const p of stop.proximas) {
+      out.push({ linea: p.linea || '??', tiempo: p.tiempo || '—', raw: p });
     }
-  } catch(e){
-    console.warn('No se ha podido cargar audios.json (está OK si aún no lo has subido).', e);
+    return out;
   }
 
-  // signal ready to UI
-  if (typeof window.assetsReady === 'function') window.assetsReady();
+  // If stop has "lineas", create dummy arrivals (for demo)
+  const lines = stop.lineas || stop.lines || [];
+  const seed = (Number(String(stop.codigo).slice(-2)) || Math.floor(Math.random()*90));
+  for (let i = 0; i < Math.min(lines.length, 6); i++) {
+    const linea = lines[i];
+    // generate pseudo-random minutes (so UI will vary)
+    const m = ((seed + i*7) % 12) * 2;
+    const tiempo = m === 0 ? 'ahora' : m;
+    out.push({ linea, tiempo });
+  }
+  return out;
 }
 
-/* Public: play universal locución (e.g., "Próxima parada") */
-async function playLocucion(filenameOrUrl) {
-  // filenameOrUrl may be a raw URL or key in audioCatalog
-  let url = filenameOrUrl;
-  if (!/^(https?:)?\/\//.test(url) && audioCatalog[filenameOrUrl]) url = audioCatalog[filenameOrUrl];
-  if (!url) return;
-  try {
-    let a = audioCache[url];
-    if (!a) { a = new Audio(url); audioCache[url] = a; }
-    await a.play().catch(()=>{ /* play blocked by browser until user gesture */ });
-  } catch(e) { console.warn('Audio play failed', e); }
+// Mostrar mapa pequeño: intentamos usar coordenadas si existen
+function buildMapHTML(stop) {
+  // Prefer lat/lon fields: lat, lon, latitude, longitude, coords
+  let lat = stop && (stop.lat || stop.latitude || (stop.coords && stop.coords[0]));
+  let lon = stop && (stop.lon || stop.longitude || (stop.coords && stop.coords[1]));
+  if (!lat || !lon) {
+    // placeholder small map / no coords
+    return `<div style="padding:10px;background:#efefef;color:#111;border-radius:8px;">Ubicación no disponible</div>`;
+  }
+  lat = Number(lat); lon = Number(lon);
+  // Insert a simple static map via openstreetmap embed (works if online).
+  // If deployment blocks external frames, reemplazar por imagen o por Leaflet local.
+  const iframe = `<iframe
+    src="https://www.openstreetmap.org/export/embed.html?bbox=${lon-0.01}%2C${lat-0.01}%2C${lon+0.01}%2C${lat+0.01}&layer=mapnik&marker=${lat}%2C${lon}"
+    style="border:1px solid #ccc;border-radius:8px;width:100%;height:240px;"></iframe>
+    <div style="font-size:12px;margin-top:6px;color:#ccc;">Lat:${lat.toFixed(5)} Lon:${lon.toFixed(5)}</div>`;
+  return iframe;
 }
 
-/* Public: play stop audio by stop id (if available) */
-async function playStopAudio(stopId) {
-  if (!audioCatalog || !audioCatalog.stops) return;
-  const url = audioCatalog.stops[stopId];
-  if (!url) return;
-  try {
-    let a = audioCache[url];
-    if (!a) { a = new Audio(url); audioCache[url] = a; }
-    await a.play().catch(()=>{ /* may be blocked */ });
-  } catch(e){ console.warn('stop audio failed', e); }
-}
-
-/* Simulador de llegadas (muestra "1 min", "2 min", "ahora") */
-/* - onArrivalChange(status) en la página recibirá los cambios. */
-function simulateArrivals(stopId) {
-  // Basic deterministic timeline for demo:
-  const timeline = [
-    {label: '5 min', isNow: false, t: 2000},
-    {label: '2 min', isNow: false, t: 4000},
-    {label: '1 min', isNow: false, t: 4000},
-    {label: 'ahora', isNow: true, t: 0} // now stays until user action
-  ];
-
-  let i = 0;
-  const step = () => {
-    const s = timeline[Math.min(i, timeline.length-1)];
-    if (typeof window.onArrivalChange === 'function') window.onArrivalChange(s);
-    // if it's 'ahora' stop the automatic loop
-    if (s.isNow) return;
-    const delay = s.t || 3000;
-    i++;
-    setTimeout(step, delay);
-  };
-  step();
-}
-
-/* Helper to start local game: naviga a bus.html con params */
-function startLocalGame(e) {
-  e.preventDefault();
-  const j1 = document.getElementById('local_j1').value.trim();
-  const j2 = document.getElementById('local_j2').value.trim();
-  if (!j1 || !j2) { alert('Pon nombre para los dos jugadores'); return false; }
-  // no preguntar rol; en bus se elegirán posiciones
-  const url = `bus.html?mode=local&j1=${encodeURIComponent(j1)}&j2=${encodeURIComponent(j2)}&role=fugitivo`;
-  location.href = url;
-  return false;
-}
-
-/* Helper to start IA game */
-function startIAGame(e) {
-  e.preventDefault();
-  const role = document.getElementById('ia_role').value;
-  const level = document.getElementById('ia_level').value;
-  const name = document.getElementById('ia_name').value.trim();
-  if (!name) { alert('Pon tu nombre'); return false; }
-  // IA takes opposite role
-  const url = `bus.html?mode=ia&name=${encodeURIComponent(name)}&role=${encodeURIComponent(role)}&level=${encodeURIComponent(level)}`;
-  location.href = url;
-  return false;
-}
-
-/* Public bindings */
-window.startLocalGame = startLocalGame;
-window.startIAGame = startIAGame;
-window.playLocucion = playLocucion;
-window.playStopAudio = playStopAudio;
-window.simulateArrivals = simulateArrivals;
-
-// launch preload
-preloadAll();
+// ---------------- Export minimal API for pages ----------------
+export {
+  qs, loadJSON, PARADAS_URL, LINEAS_URL, BUSES_URL,
+  GameState, findStopByCode, computeArrivalsForStop, nextArrivalLabel,
+  buildMapHTML, formatLinesArray
+};
