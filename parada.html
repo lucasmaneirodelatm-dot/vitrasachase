@@ -1,113 +1,120 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Parada — VITRASA CHASE</title>
+<title>Parada - VITRASA CHASE</title>
 <style>
-  body{font-family:Arial,Helvetica,sans-serif;margin:0;background:#f7f9fc;color:#111;padding:18px}
-  .card{max-width:900px;margin:18px auto;background:#fff;padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.08)}
-  h1{margin:0 0 6px}
-  .lines{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
-  .line{padding:8px 10px;border-radius:8px;background:#eef2f7;border:1px solid #d9e1ee}
-  .stop-data{display:flex;gap:12px;align-items:center}
-  #map{height:250px;background:linear-gradient(180deg,#e6eef7,#ffffff);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#6b7885}
-  .line-item{display:flex;justify-content:space-between;align-items:center;padding:8px;border-bottom:1px solid #f1f5f9}
-  button.primary{background:#0073cc;color:#fff;padding:8px 12px;border-radius:8px;border:0;cursor:pointer}
-  .muted{color:#677284;font-size:13px}
+  body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#0b1220;color:#fff;padding:18px}
+  a{color:#8fcfff}
+  .card{background:#0f1724;padding:14px;border-radius:10px;margin:10px 0}
+  .header{display:flex;align-items:center;gap:12px}
+  .logo{width:72px}
+  h1{margin:8px 0 4px}
+  .small{color:#9aa7b8;font-size:13px}
+  .list{margin-top:12px}
+  .arrival{display:flex;justify-content:space-between;padding:10px;border-radius:8px;background:#071226;margin:8px 0;align-items:center}
+  .btn{background:#14b8a6;padding:8px 12px;border-radius:8px;color:#022;cursor:pointer;border:none}
+  .btn:active{transform:translateY(1px)}
+  #mapWrap{margin-top:10px}
 </style>
 </head>
 <body>
-  <div class="card">
-    <div class="stop-data">
-      <div>
-        <h1 id="stopName">Parada — Cargando…</h1>
-        <div class="muted" id="stopCode">Código: —</div>
-      </div>
-    </div>
 
-    <div id="map" style="margin-top:12px">Mapa (placeholder)</div>
-
-    <h3 style="margin-top:12px">Líneas que pasan</h3>
-    <div id="linesList" style="border-radius:8px;overflow:hidden;background:#fff"></div>
+<div class="header">
+  <img class="logo" src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/logo_vitrasa.png" alt="logo">
+  <div>
+    <div class="small">🚌 VITRASA CHASE</div>
+    <h1 id="stopName">Parada</h1>
+    <div class="small" id="stopCode">Código: —</div>
   </div>
+</div>
 
-<script>
-/* Rutas de datos - cámbialas por raw.github si subes */
-const DATA = {
-  paradas: '/mnt/data/paradas.json',
-  lineas: '/mnt/data/lineas.json',
-  buses:  '/mnt/data/buses.json'
-};
+<div class="card">
+  <div id="stopInfo">Cargando información de la parada…</div>
+  <div id="mapWrap"></div>
+</div>
 
-/* Helper: obtiene query ?busStop=6940 */
-function getQuery() {
-  const q = new URLSearchParams(location.search);
-  return q.get('busStop') || q.get('stop') || q.get('code') || null;
-}
+<div class="card">
+  <strong>Próximas llegadas</strong>
+  <div id="arrivals" class="list"></div>
+</div>
 
-async function loadStop() {
-  const stopId = getQuery();
-  if (!stopId) {
-    document.getElementById('stopName').textContent = 'Parada no especificada';
-    return;
-  }
-  document.getElementById('stopCode').textContent = 'Código: ' + stopId;
+<div style="margin-top:12px">
+  <a href="local.html">← Volver al menú</a>
+</div>
 
-  try {
-    const [paradasResp, lineasResp] = await Promise.all([fetch(DATA.paradas), fetch(DATA.lineas)]);
-    const paradas = await paradasResp.json();
-    const lineas = await lineasResp.json();
+<script type="module">
+  import {
+    qs, loadJSON, PARADAS_URL, LINEAS_URL,
+    GameState, findStopByCode, computeArrivalsForStop, nextArrivalLabel, buildMapHTML
+  } from './logic.js';
 
-    // buscar parada por id (asumo estructura { "paradas": [ { "id":"6940", "name": "..."} ] } o mapa directo)
-    let stop = null;
-    if (Array.isArray(paradas)) stop = paradas.find(p => String(p.id)===String(stopId) || String(p.codigo)===String(stopId));
-    else if (paradas[stopId]) stop = paradas[stopId];
-    else if (paradas.paradas) stop = paradas.paradas.find(p => String(p.id)===String(stopId));
+  (async function(){
+    const codigo = qs('parada') || qs('stop') || '6620';
+    const paradas = await loadJSON(PARADAS_URL);
+    const lineas  = await loadJSON(LINEAS_URL);
 
-    if (stop) document.getElementById('stopName').textContent = stop.nombre || stop.name || stop.title || 'Parada';
-    else document.getElementById('stopName').textContent = 'Parada ' + stopId;
+    const stop = findStopByCode(paradas || [], codigo);
+    const stopNameEl = document.getElementById('stopName');
+    const stopCodeEl = document.getElementById('stopCode');
+    const stopInfoEl = document.getElementById('stopInfo');
+    const mapWrapEl = document.getElementById('mapWrap');
+    const arrivalsEl = document.getElementById('arrivals');
 
-    // líneas que pasan: buscar en lineas paradas array que incluya stopId
-    const passing = [];
-    if (Array.isArray(lineas)) {
-      lineas.forEach(l => {
-        if (Array.isArray(l.paradas) && l.paradas.map(String).includes(String(stopId))) passing.push(l);
-      });
+    if (!stop) {
+      stopNameEl.textContent = 'Parada no encontrada';
+      stopCodeEl.textContent = `Código: ${codigo}`;
+      stopInfoEl.innerHTML = `<div class="small">No hay datos para esa parada en ${PARADAS_URL}</div>`;
+      return;
     }
-    renderLines(passing);
-  } catch (e) {
-    console.error(e);
-    document.getElementById('linesList').innerHTML = '<div class="muted">No he podido cargar datos. Revisa DATA paths en el código.</div>';
-  }
-}
 
-function renderLines(lines) {
-  const container = document.getElementById('linesList');
-  if (!lines.length) {
-    container.innerHTML = '<div class="muted" style="padding:12px">No hay líneas registradas para esta parada.</div>';
-    return;
-  }
-  container.innerHTML = '';
-  lines.forEach(l => {
-    // ETA simulated (puede venir del servidor); aquí colocamos ejemplo y botón "Coger" cuando eta === "ahora"
-    const eta = (Math.random() < 0.2) ? 'ahora' : Math.floor(Math.random()*15+1) + ' min';
-    const row = document.createElement('div');
-    row.className = 'line-item';
-    row.innerHTML = `<div><strong>${l.id || l.codigo || l.nombre}</strong> — <span class="muted">${l.nombre || l.title || ''}</span></div>
-                     <div style="display:flex;gap:8px;align-items:center"><div class="muted">${eta}</div>
-                     ${eta==='ahora'?`<button class="primary" onclick="board('${l.id||l.codigo}')">Coger</button>`:''}
-                     </div>`;
-    container.appendChild(row);
-  });
-}
+    stopNameEl.textContent = stop.nombre || stop.name || stop.label || 'Parada';
+    stopCodeEl.textContent = `Código: ${stop.codigo || stop.id || stop.code || '—'}`;
+    stopInfoEl.innerHTML = `<div class="small">${stop.direccion || stop.address || ''}</div>
+                            <div class="small">Líneas: ${Array.isArray(stop.lineas) ? stop.lineas.join(', ') : (stop.lineas || stop.lines || '')}</div>`;
 
-function board(lineId){
-  alert('Intentando subir al bus de la línea ' + lineId + '. (En el juego real esto enviaría evento al servidor / lógica local).');
-  // Aquí: reproducir audio si hay, notificar worldState, etc.
-}
+    // map
+    mapWrapEl.innerHTML = buildMapHTML(stop);
 
-loadStop();
+    // arrivals
+    const arrivals = computeArrivalsForStop(stop, lineas);
+    arrivalsEl.innerHTML = '';
+    arrivals.forEach(a => {
+      const tiempoTxt = nextArrivalLabel(a.tiempo);
+      const div = document.createElement('div');
+      div.className = 'arrival';
+      const left = document.createElement('div');
+      left.innerHTML = `<div style="font-weight:700">${a.linea}</div><div class="small">línea</div>`;
+      const right = document.createElement('div');
+      right.style.textAlign = 'right';
+      right.innerHTML = `<div style="font-weight:700">${tiempoTxt}</div><div class="small">llegada</div>`;
+      div.appendChild(left);
+      div.appendChild(right);
+
+      // si 'ahora' mostramos botón coger
+      const isAhora = (String(tiempoTxt).toLowerCase().includes('ahora'));
+      if (isAhora) {
+        const cogerBtn = document.createElement('button');
+        cogerBtn.className = 'btn';
+        cogerBtn.style.marginLeft = '10px';
+        cogerBtn.textContent = 'Coger';
+        cogerBtn.onclick = () => {
+          // Simulación básica: crear "bus" y subir jugador
+          sessionStorage.setItem('lastSubida', JSON.stringify({ parada: stop.codigo || stop.id || codigo, linea: a.linea, when: Date.now() }));
+          // redirigimos a bus.html con dato de linea
+          window.location.href = `bus.html?linea=${encodeURIComponent(a.linea)}&parada=${encodeURIComponent(stop.codigo||codigo)}`;
+        };
+
+        // mostrar botón junto a tiempo
+        right.appendChild(document.createElement('br'));
+        right.appendChild(cogerBtn);
+      }
+
+      arrivalsEl.appendChild(div);
+    });
+
+  })();
 </script>
 </body>
 </html>
