@@ -1,101 +1,78 @@
-cat > bus.html <<'EOF'
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>VITRASA CHASE — Parada / Bus</title>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Bus — VITRASA CHASE</title>
 <style>
-  body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f6f8fb;color:#0b1220}
-  header{background:#06213a;color:#fff;padding:16px;text-align:center}
-  .wrap{max-width:980px;margin:18px auto;padding:16px}
-  .card{background:#fff;border-radius:12px;padding:16px;box-shadow:0 6px 22px rgba(10,20,40,0.08)}
-  .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-  .stop-info{flex:1}
-  .arrival{font-weight:700;color:#0b7bd6}
-  .arrival.now{color:#d9534f}
-  .btn{padding:10px 14px;border-radius:10px;border:none;background:#0b7bd6;color:#fff;cursor:pointer}
-  .btn.ghost{background:transparent;border:1px solid #cfdff1;color:#0b1220}
-  #map{height:300px;border-radius:8px;background:#e6eef8;display:flex;align-items:center;justify-content:center;color:#2b4f6f}
-  .players{margin-top:10px;font-size:13px;color:#46697f}
+ body{font-family:Arial,Helvetica,sans-serif;background:#f3f6f9;color:#0b1220;margin:0;padding:18px}
+ .wrap{max-width:900px;margin:12px auto;background:#fff;padding:16px;border-radius:10px;box-shadow:0 8px 20px rgba(0,0,0,0.06)}
+ h1{margin:0}
+ .next{margin-top:12px;padding:10px;border-radius:8px;background:#f7fbff;border:1px solid #e6f0fb;display:flex;justify-content:space-between;align-items:center}
+ button.primary{background:#0b74d8;color:#fff;padding:8px 12px;border-radius:8px;border:0;cursor:pointer}
+ .muted{color:#6b7785}
 </style>
 </head>
 <body>
-<header><img src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/logo_vitrasa.png" style="height:40px;vertical-align:middle"> VITRASA CHASE</header>
-<div class="wrap">
-  <div class="card">
-    <div class="row">
-      <div class="stop-info">
-        <div style="font-size:18px;font-weight:700" id="stop-name">Parada — Ejemplo</div>
-        <div style="margin-top:6px" id="stop-lines">Líneas: C1, 4A, 5B</div>
+  <div class="wrap">
+    <h1 id="lineTitle">Línea — Cargando...</h1>
+    <div class="muted" id="busId">Bus: —</div>
+
+    <div class="next" id="nextStopBox">
+      <div>
+        <div class="muted">Próxima parada</div>
+        <div id="nextStop" style="font-weight:700">—</div>
       </div>
-      <div style="text-align:right">
-        <div style="font-size:12px;color:#556b7f">Próxima llegada</div>
-        <div id="next-arrival" class="arrival">1 min</div>
-        <div style="margin-top:8px">
-          <button id="btn-coger" class="btn" style="display:none">🚏 Coger</button>
-          <button id="btn-no-coger" class="btn ghost" style="display:none">No coger</button>
-        </div>
+      <div>
+        <div class="muted">ETA</div>
+        <div id="eta">—</div>
       </div>
     </div>
 
-    <div id="map" style="margin-top:12px">[MAPA: ubicación jugador A y B]</div>
+    <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+      <button class="primary" onclick="ring()">🔔 Timbre (bajar)</button>
+      <div class="muted">Pulsa para avisar que quieres bajar en la próxima parada.</div>
+    </div>
 
-    <div class="players">Jugadores aquí: <span id="players-list">Tú (Fugitivo)</span></div>
+    <h3 style="margin-top:18px">Pasajeros</h3>
+    <ul id="passengers"></ul>
   </div>
 
-  <div style="margin-top:12px;text-align:center">
-    <button class="btn ghost" id="back">⬅ Volver al menú</button>
-  </div>
-</div>
-
-<script src="logic.js"></script>
 <script>
-/* bus UI behavior */
-document.addEventListener('DOMContentLoaded', async () => {
-  // read query params to fill page
-  const q = new URLSearchParams(location.search);
-  const mode = q.get('mode') || 'local';
-  const name = q.get('name') || q.get('j1') || 'Jugador';
-  const role = q.get('role') || 'fugitivo';
-  document.getElementById('players-list').textContent = name + ' (' + role + ')';
+/* lectura de params */
+const params = Object.fromEntries(new URLSearchParams(location.search));
+const mode = params.mode || 'local';
+const name = params.j1 || params.j || 'Jugador';
 
-  // sample stop info (in real app lo cargarás desde paradas.json)
-  const stop = {
-    id: q.get('stop') || '6940',
-    name: q.get('stopName') || 'Praza de América (ejemplo)',
-    lines: q.get('lines') || 'C1, 4A, 5B'
-  };
-  document.getElementById('stop-name').textContent = stop.name;
-  document.getElementById('stop-lines').textContent = 'Líneas: ' + stop.lines;
+/* ejemplo de inicialización: mostrar linea / busId */
+document.getElementById('lineTitle').textContent = params.role ? `(${params.role}) VITRASA CHASE - ${params.j1||'Jugador'}` : 'VITRASA CHASE';
+document.getElementById('busId').textContent = 'Bus: sim-001';
 
-  // simulate arrival status using helper from logic.js
-  window.onArrivalChange = (status) => {
-    const el = document.getElementById('next-arrival');
-    el.textContent = status.label;
-    el.className = 'arrival' + (status.isNow ? ' now' : '');
-    // show "Coger" button only when status.isNow === true
-    document.getElementById('btn-coger').style.display = status.isNow ? 'inline-block' : 'none';
-    document.getElementById('btn-no-coger').style.display = status.isNow ? 'inline-block' : 'none';
-  };
+/* simulación simple de próximas paradas */
+const fakeStops = ['Praza de América','Avda. da Gran Vía','Rúa de Pizarro','Praza de España','Estación Intermodal'];
+let idx = 0;
+function updateNext(){
+  document.getElementById('nextStop').textContent = fakeStops[idx%fakeStops.length];
+  document.getElementById('eta').textContent = (Math.max(10 - idx*2, 1)) + ' s';
+  renderPassengers();
+  idx++;
+}
+function renderPassengers(){
+  const ul = document.getElementById('passengers');
+  ul.innerHTML = '';
+  const count = 2 + Math.floor(Math.random()*6);
+  for(let i=0;i<count;i++){
+    const li = document.createElement('li');
+    li.textContent = `Pasajero ${i+1}${i===0?' (tu)':''}`;
+    ul.appendChild(li);
+  }
+}
+function ring(){
+  alert('Has pulsado el timbre. Se avisará al conductor (simulación).');
+  // Aquí podrías reproducir audio: "Próxima parada" + nombre de la parada
+}
 
-  // start simulation (logic.js provides simulateArrivals)
-  window.simulateArrivals && window.simulateArrivals(stop.id);
-
-  // button actions
-  document.getElementById('btn-coger').addEventListener('click', async () => {
-    // play boarding locución + stop audio
-    await window.playLocucion('locucion_proxima_parada.mp3'); // universal locución
-    await window.playStopAudio(stop.id); // stop audio from audios.json if present
-    alert('Has subido al bus (simulación). Ahora el bus seguirá su recorrido.');
-  });
-
-  document.getElementById('btn-no-coger').addEventListener('click', () => {
-    alert('No cogiste el bus. El bus seguirá a la siguiente parada (simulado).');
-  });
-
-  document.getElementById('back').addEventListener('click', () => history.back());
-});
+setInterval(updateNext, 4500);
+updateNext();
 </script>
 </body>
 </html>
