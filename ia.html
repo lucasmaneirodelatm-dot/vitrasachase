@@ -1,137 +1,45 @@
-<!DOCTYPE html>
+cat > ia.html <<'EOF'
+<!doctype html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>VITRASA CHASE - Contra IA</title>
-
-<style>
-    body {
-        margin: 0;
-        padding: 0;
-        text-align: center;
-        background: #0b1220;
-        color: white;
-        font-family: Arial, sans-serif;
-    }
-
-    #loader {
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%;
-        height: 100%;
-        background: white;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 999;
-    }
-
-    #loader img {
-        width: 200px;
-    }
-
-    #main {
-        display: none;
-        padding: 30px;
-    }
-
-    #logo {
-        width: 180px;
-        margin-bottom: 20px;
-    }
-
-    input, select {
-        width: 70%;
-        padding: 12px;
-        margin: 10px;
-        border-radius: 8px;
-        border: none;
-        font-size: 16px;
-    }
-
-    .btn {
-        display: block;
-        width: 70%;
-        margin: 20px auto;
-        padding: 15px;
-        background: #1e88e5;
-        border-radius: 10px;
-        text-decoration: none;
-        color: white;
-        font-size: 18px;
-        cursor: pointer;
-    }
-
-    .btn:hover {
-        background: #1667b8;
-    }
-</style>
+<link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
+<div id="loader" class="loader"><img src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/LoaderAvanza.gif" alt="loader"></div>
 
-<div id="loader">
-    <img src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/LoaderAvanza.gif">
-</div>
+<main id="main" class="hidden">
+  <h1>Contra IA</h1>
+  <form id="iaForm">
+    <label>Tu nombre</label>
+    <input id="ia_name" placeholder="Tu nombre">
 
-<div id="main">
-    <img id="logo" src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/Logo-principal.png">
-
-    <h1>🤖 Contra IA</h1>
-
-    <input id="nombre" type="text" placeholder="Tu nombre">
-
-    <label>Tu rol:</label>
-    <select id="rol">
-        <option value="fugitivo">Fugitivo</option>
-        <option value="perseguidor">Perseguidor</option>
+    <label>Elige rol</label>
+    <select id="ia_role">
+      <option value="fugitivo">Fugitivo</option>
+      <option value="perseguidor">Perseguidor</option>
     </select>
 
-    <label>Nivel de IA:</label>
-    <select id="nivel">
-        <option value="1">Nivel 1 (Fácil)</option>
-        <option value="2">Nivel 2</option>
-        <option value="3">Nivel 3</option>
-        <option value="4">Nivel 4</option>
-        <option value="5">Nivel 5 (Difícil)</option>
+    <label>Nivel IA</label>
+    <select id="ia_level">
+      <option value="easy">Fácil</option>
+      <option value="normal" selected>Normal</option>
+      <option value="hard">Difícil</option>
     </select>
 
-    <button class="btn" onclick="startIA()">
-        🚀 Empezar contra IA
-    </button>
-</div>
+    <button id="startIA" class="btn" type="button">🚀 Empezar vs IA</button>
+  </form>
 
-<script>
-window.addEventListener("load", () => {
-    setTimeout(() => {
-        document.getElementById("loader").style.display = "none";
-        document.getElementById("main").style.display = "block";
-    }, 300);
-});
+  <div id="room" class="hidden">
+    <h2 id="roomTitle">Sala IA</h2>
+    <div id="scene"></div>
+    <button id="back" class="btn">⬅️ Volver al menú</button>
+  </div>
+</main>
 
-function startIA() {
-    const nombre = document.getElementById("nombre").value.trim();
-    const rol = document.getElementById("rol").value;
-    const nivel = document.getElementById("nivel").value;
-
-    if (!nombre) {
-        alert("Pon tu nombre.");
-        return;
-    }
-
-    // Roles automáticos
-    const iaRol = rol === "fugitivo" ? "perseguidor" : "fugitivo";
-
-    sessionStorage.setItem("modo", "ia");
-    sessionStorage.setItem("jugador", nombre);
-    sessionStorage.setItem("rol", rol);
-    sessionStorage.setItem("iaRol", iaRol);
-    sessionStorage.setItem("iaNivel", nivel);
-
-    window.location.href = "parada.html?parada=6620";
-}
-</script>
-
+<script src="logic.js"></script>
 </body>
 </html>
+EOF
