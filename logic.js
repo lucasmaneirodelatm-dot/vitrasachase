@@ -1,149 +1,126 @@
-/* ============================
-   VITRASA CHASE - logic.js
-   CÓDIGO ARREGLADO COMPLETAMENTE
-=============================== */
-
-/* ---------- LOADER ---------- */
-function resourcesLoaded() {
-    // Aquí luego se podrán meter comprobaciones de audios, imágenes, etc.
-    return true;
-}
-
-function hideLoaderShowMain() {
-    const loader = document.getElementById("loader");
-    const main = document.getElementById("main");
-    if (loader) loader.classList.add("hidden");
-    if (main) main.classList.remove("hidden");
-}
-
-function showLoader() {
-    const loader = document.getElementById("loader");
-    const main = document.getElementById("main");
-    if (loader) loader.classList.remove("hidden");
-    if (main) main.classList.add("hidden");
-}
-
-/* ---------- INICIO GENERAL ---------- */
+cat > logic.js <<'EOF'
+// ---------------------------------------------------------
+// LOADER: SE OCULTA CUANDO EL DOM ESTÁ LISTO
+// ---------------------------------------------------------
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("logic.js cargado correctamente");
+    console.log("✔ DOM cargado, ocultando loader");
 
-    // Loader: se quita cuando el DOM está listo
-    if (resourcesLoaded()) {
-        setTimeout(() => {
-            hideLoaderShowMain();
-        }, 100);
-    }
+    const loader = document.getElementById("loader");
+    const main = document.getElementById("main");
 
-    // Botón de iniciar partida local
-    const btnLocal = document.getElementById("startLocal");
-    if (btnLocal) {
-        btnLocal.onclick = () => {
-            const p1 = document.getElementById("p1").value || "Fugitivo";
-            const p2 = document.getElementById("p2").value || "Perseguidor";
-
-            window.__room = {
-                mode: "local",
-                players: [
-                    { name: p1, role: "fugitivo" },
-                    { name: p2, role: "perseguidor" }
-                ]
-            };
-
-            window.location.href = "juego.html";
-        };
-    }
-
-    // Botón de iniciar Contra IA
-    const btnIA = document.getElementById("startIA");
-    if (btnIA) {
-        btnIA.onclick = () => {
-            const name = document.getElementById("ia_name").value || "Jugador";
-            const role = document.getElementById("ia_role").value || "fugitivo";
-            const level = document.getElementById("ia_level").value || "normal";
-
-            window.__room = {
-                mode: "ia",
-                players: [
-                    { name, role },
-                    { name: "IA", role: role === "fugitivo" ? "perseguidor" : "fugitivo", ai: true, level }
-                ]
-            };
-
-            window.location.href = "juego.html";
-        };
-    }
-
-    /* ---------- SI ESTAMOS EN JUEGO.HTML ---------- */
-    if (location.pathname.endsWith("juego.html")) {
-        initGame();
-    }
+    if (loader) loader.style.display = "none";
+    if (main) main.classList.remove("hidden");
 });
 
-/* ================================
-        LÓGICA DEL JUEGO
-================================ */
-
-function initGame() {
-    console.log("Inicializando partida…");
-
-    const title = document.getElementById("title");
-    if (title && window.__room) {
-        title.textContent = "VITRASA CHASE — " + window.__room.mode.toUpperCase();
-    }
-
-    // Mostrar una parada aleatoria simple
-    const parada = getRandomParada();
-    renderParada(parada);
-
-    // Mostrar buses inventados
-    const buses = simulateBuses();
-    renderBusList(buses);
+// ---------------------------------------------------------
+// UTILIDADES
+// ---------------------------------------------------------
+function pickRandom(arr) {
+    return arr[Math.floor(Math.random() * arr.length)];
 }
 
-/* ---------- PARADAS SIMPLES ---------- */
+// ---------------------------------------------------------
+// ENRUTAMIENTO PARA LOCAL / IA / JUEGO
+// ---------------------------------------------------------
+if (location.pathname.endsWith("local.html")) {
+    initLocalPage();
+}
+if (location.pathname.endsWith("ia.html")) {
+    initIAPage();
+}
+if (location.pathname.endsWith("juego.html")) {
+    initGamePage();
+}
 
-function getRandomParada() {
-    return {
-        id: "6620",
-        name: "Rúa de Policarpo Sanz, 40"
+// ---------------------------------------------------------
+// LOCAL.HTML
+// ---------------------------------------------------------
+function initLocalPage() {
+    const btn = document.getElementById("startLocal");
+    if (!btn) return;
+
+    btn.onclick = () => {
+        const p1 = document.getElementById("p1").value || "Fugitivo";
+        const p2 = document.getElementById("p2").value || "Perseguidor";
+
+        window.__sala = {
+            modo: "local",
+            jugadores: [
+                { nombre: p1, rol: "fugitivo" },
+                { nombre: p2, rol: "perseguidor" }
+            ]
+        };
+
+        location.href = "juego.html";
     };
 }
 
-function renderParada(parada) {
+// ---------------------------------------------------------
+// IA.HTML
+// ---------------------------------------------------------
+function initIAPage() {
+    const btn = document.getElementById("startIA");
+    if (!btn) return;
+
+    btn.onclick = () => {
+        const nombre = document.getElementById("ia_name").value || "Jugador";
+        const rol = document.getElementById("ia_role").value || "fugitivo";
+
+        window.__sala = {
+            modo: "ia",
+            jugadores: [
+                { nombre, rol },
+                { nombre: "IA", rol: rol === "fugitivo" ? "perseguidor" : "fugitivo", ia: true }
+            ]
+        };
+
+        location.href = "juego.html";
+    };
+}
+
+// ---------------------------------------------------------
+// JUEGO.HTML
+// ---------------------------------------------------------
+function initGamePage() {
+    console.log("✔ Página de juego iniciada");
+
+    const info = document.getElementById("roomInfo");
+
+    if (window.__sala) {
+        info.innerHTML = `
+            <strong>Modo:</strong> ${window.__sala.modo}<br>
+            <strong>Jugadores:</strong> ${window.__sala.jugadores.map(j=>j.nombre+" ("+j.rol+")").join(", ")}
+        `;
+    }
+
+    // PARADA ALEATORIA
+    const paradas = Object.keys(DEFAULT_STOPS);
+    const randomId = pickRandom(paradas);
+    const parada = DEFAULT_STOPS[randomId];
+
+    renderParada(randomId, parada);
+}
+
+// ---------------------------------------------------------
+// RENDER PARADA
+// ---------------------------------------------------------
+function renderParada(id, parada) {
     const box = document.getElementById("paradaInfo");
     if (!box) return;
-
     box.innerHTML = `
-        <h3>Parada ${parada.id}</h3>
-        <p>${parada.name}</p>
+        <h2>Próxima parada</h2>
+        <p><strong>${id}</strong><br>${parada.nombre}</p>
     `;
 }
 
-/* ---------- BUSES SIMULADOS ---------- */
-
-function simulateBuses() {
-    return [
-        { line: "C1", number: 6154, eta: "ahora" },
-        { line: "4A", number: 6231, eta: "3 min" },
-        { line: "5B", number: 6177, eta: "6 min" }
-    ];
-}
-
-function renderBusList(buses) {
-    const box = document.getElementById("busList");
-    if (!box) return;
-
-    box.innerHTML = "<h3>📍 Próximos autobuses</h3>";
-
-    buses.forEach(b => {
-        const div = document.createElement("div");
-        div.className = "busItem";
-        div.innerHTML = `<strong>${b.line}</strong> — Bus ${b.number} — <em>${b.eta}</em>`;
-        box.appendChild(div);
-
-        if (b.eta === "ahora") {
-            const btn = document.getElementById("cogerBtn");
-            if (btn) btn.classList.remove("hidden");
-        }
-    });
-}
+// ---------------------------------------------------------
+// PARADAS DE EJEMPLO
+// ---------------------------------------------------------
+const DEFAULT_STOPS = {
+    "6620": { nombre: "Rúa de Policarpo Sanz, 40" },
+    "20198": { nombre: "Rúa de Policarpo Sanz, 26" },
+    "14264": { nombre: "Rúa de Urzáiz - Príncipe" },
+    "14121": { nombre: "Rúa da Reconquista, 2" },
+    "6930": { nombre: "Praza de América, 1" }
+};
+EOF
