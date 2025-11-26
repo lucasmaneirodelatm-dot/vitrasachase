@@ -1,0 +1,40 @@
+cat > game.html <<'EOF'
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>VITRASA CHASE - Sala</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="loader" class="loader"><img src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/LoaderAvanza.gif" alt="loader"></div>
+
+<main id="main" class="hidden">
+  <header>
+    <img id="logoSmall" src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/logo_vitrasa.png" alt="logo" height="56">
+    <h1 id="title">VITRASA CHASE - Sala</h1>
+  </header>
+
+  <section id="infoPanel">
+    <div id="paradaInfo"></div>
+    <div id="busList"></div>
+  </section>
+
+  <section id="mapPanel">
+    <div id="mapPlaceholder">[MAPA: ubicación de jugadores]</div>
+  </section>
+
+  <section id="actions">
+    <button id="cogerBtn" class="btn hidden">Coger (si aparece "ahora")</button>
+    <button id="timbreBtn" class="btn">Timbre (bajar en la próxima parada)</button>
+  </section>
+
+  <div id="log"></div>
+  <button id="exit" class="btn">Salir sala</button>
+</main>
+
+<script src="logic.js"></script>
+</body>
+</html>
+EOF
