@@ -1,0 +1,13 @@
+cat > styles.css <<'EOF'
+:root{--accent:#0066cc}
+body{font-family:Arial,Helvetica,sans-serif;margin:0;padding:20px;background:#f6f7fb;color:#111}
+.hidden{display:none}
+.loader{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#fff;z-index:9999}
+#logo{display:block;margin:10px auto 20px;height:90px}
+h1{margin:0 0 10px}
+.btn{display:inline-block;padding:12px 18px;border-radius:10px;background:var(--accent);color:#fff;text-decoration:none;border:none;font-size:16px;cursor:pointer;margin:8px}
+.btn.disabled{opacity:.5;pointer-events:none}
+#mapPlaceholder{min-height:140px;border:2px dashed #ccc;border-radius:8px;padding:12px;margin:12px 0}
+#infoPanel,#mapPanel{margin-bottom:12px}
+#busList .bus{padding:8px;border-radius:8px;background:#fff;margin:6px 0;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+#log{margin-top:12px;font-size:13px;color:#444}
