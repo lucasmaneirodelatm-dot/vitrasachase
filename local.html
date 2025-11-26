@@ -1,120 +1,35 @@
-<!DOCTYPE html>
+cat > local.html <<'EOF'
+<!doctype html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>VITRASA CHASE - Juego Local</title>
-
-<style>
-    body {
-        margin: 0;
-        padding: 0;
-        text-align: center;
-        background: #0b1220;
-        color: white;
-        font-family: Arial, sans-serif;
-    }
-
-    #loader {
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%;
-        height: 100%;
-        background: white;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 999;
-    }
-
-    #loader img {
-        width: 200px;
-    }
-
-    #main {
-        display: none;
-        padding: 30px;
-    }
-
-    #logo {
-        width: 180px;
-        margin-bottom: 20px;
-    }
-
-    input {
-        width: 70%;
-        padding: 12px;
-        margin: 10px;
-        border-radius: 8px;
-        border: none;
-        font-size: 16px;
-    }
-
-    .btn {
-        display: block;
-        width: 70%;
-        margin: 20px auto;
-        padding: 15px;
-        background: #1e88e5;
-        border-radius: 10px;
-        text-decoration: none;
-        color: white;
-        font-size: 18px;
-        cursor: pointer;
-    }
-
-    .btn:hover {
-        background: #1667b8;
-    }
-</style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>VITRASA CHASE - Local</title>
+<link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
+<div id="loader" class="loader"><img src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/LoaderAvanza.gif" alt="loader"></div>
 
-<div id="loader">
-    <img src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/LoaderAvanza.gif">
-</div>
+<main id="main" class="hidden">
+  <h1>Juego Local</h1>
+  <form id="localForm">
+    <label>Jugador 1 — Nombre (por defecto: Fugitivo)</label>
+    <input id="p1" placeholder="Jugador 1 (Fugitivo)">
 
-<div id="main">
-    <img id="logo" src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/Logo-principal.png">
+    <label>Jugador 2 — Nombre (por defecto: Perseguidor)</label>
+    <input id="p2" placeholder="Jugador 2 (Perseguidor)">
 
-    <h1>🏠 Juego Local</h1>
-    <p>Introduce los dos jugadores:</p>
+    <button id="startLocal" class="btn" type="button">🚀 Empezar partida local</button>
+  </form>
 
-    <input id="j1" type="text" placeholder="Jugador 1 (Fugitivo)">
-    <input id="j2" type="text" placeholder="Jugador 2 (Perseguidor)">
+  <div id="room" class="hidden">
+    <h2 id="roomTitle">Sala local</h2>
+    <div id="scene"></div>
+    <button id="back" class="btn">⬅️ Volver al menú</button>
+  </div>
+</main>
 
-    <button class="btn" onclick="startLocal()">
-        🚀 Empezar
-    </button>
-</div>
-
-<script>
-window.addEventListener("load", () => {
-    setTimeout(() => {
-        document.getElementById("loader").style.display = "none";
-        document.getElementById("main").style.display = "block";
-    }, 300);
-});
-
-function startLocal() {
-    const j1 = document.getElementById("j1").value.trim();
-    const j2 = document.getElementById("j2").value.trim();
-
-    if (!j1 || !j2) {
-        alert("Rellena ambos nombres.");
-        return;
-    }
-
-    // Guardar datos para la partida local
-    sessionStorage.setItem("modo", "local");
-    sessionStorage.setItem("fugitivo", j1);
-    sessionStorage.setItem("perseguidor", j2);
-
-    // Redirigir a la primera parada
-    window.location.href = "parada.html?parada=6620"; // Ejemplo
-}
-</script>
-
+<script src="logic.js"></script>
 </body>
 </html>
+EOF
