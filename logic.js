@@ -2,10 +2,17 @@ cat > logic.js <<'EOF'
 /* FIX DEFINITIVO LOADER */
 document.addEventListener("DOMContentLoaded", () => {
   const interval = setInterval(() => {
-    // Aquí puedes añadir más comprobaciones si quieres
-    hideLoaderShowMain();  // <— muestra el main y oculta loader SIEMPRE
-    clearInterval(interval);
-  }, 150); // espera pequeño para asegurar que DOM está listo
+   console.log("✨ DEBUG loader — DOM readyState:", document.readyState);
+
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("DOMContentLoaded fired");
+  const loader = document.getElementById("loader");
+  const main = document.getElementById("main");
+  console.log("loader element:", loader, "main element:", main);
+  if (loader) loader.style.display = "none";
+  if (main) main.classList.remove("hidden");
+});
+
 });
 /*
   logic.js
