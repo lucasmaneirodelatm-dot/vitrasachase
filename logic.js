@@ -1,4 +1,12 @@
 cat > logic.js <<'EOF'
+/* FIX DEFINITIVO LOADER */
+document.addEventListener("DOMContentLoaded", () => {
+  const interval = setInterval(() => {
+    // Aquí puedes añadir más comprobaciones si quieres
+    hideLoaderShowMain();  // <— muestra el main y oculta loader SIEMPRE
+    clearInterval(interval);
+  }, 150); // espera pequeño para asegurar que DOM está listo
+});
 /*
   logic.js
   - loader: permanece hasta que recursos mínimos cargan (imágenes + audios si existen)
