@@ -1,35 +1,58 @@
-cat > local.html <<'EOF'
 <!doctype html>
 <html lang="es">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>VITRASA CHASE - Local</title>
+<title>VITRASA CHASE — Juego Local</title>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<div id="loader" class="loader"><img src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/LoaderAvanza.gif" alt="loader"></div>
-
-<main id="main" class="hidden">
-  <h1>Juego Local</h1>
-  <form id="localForm">
-    <label>Jugador 1 — Nombre (por defecto: Fugitivo)</label>
-    <input id="p1" placeholder="Jugador 1 (Fugitivo)">
-
-    <label>Jugador 2 — Nombre (por defecto: Perseguidor)</label>
-    <input id="p2" placeholder="Jugador 2 (Perseguidor)">
-
-    <button id="startLocal" class="btn" type="button">🚀 Empezar partida local</button>
-  </form>
-
-  <div id="room" class="hidden">
-    <h2 id="roomTitle">Sala local</h2>
-    <div id="scene"></div>
-    <button id="back" class="btn">⬅️ Volver al menú</button>
+  <div id="loader" class="loader">
+    <img src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/LoaderAvanza.gif" alt="loader">
   </div>
-</main>
 
-<script src="logic.js"></script>
+  <main id="main" class="hidden container">
+    <img id="logo" src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/Logo-principal.png" alt="logo">
+    <h2>🏠 Juego Local</h2>
+
+    <div class="card">
+      <label>Jugador 1 (nombre)</label>
+      <input id="local_p1" placeholder="Nombre jugador 1 (ej: Ana)">
+
+      <label>Jugador 2 (nombre)</label>
+      <input id="local_p2" placeholder="Nombre jugador 2 (ej: Brais)">
+
+      <div style="margin-top:12px;">
+        <button class="btn" id="startLocal">🚀 Empezar partida local</button>
+        <button class="btn ghost" id="backIndex">↩ Volver</button>
+      </div>
+    </div>
+
+    <div id="log" class="log"></div>
+  </main>
+
+<script src="common.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // loader hide policy
+  waitForResourcesThenShow();
+
+  document.getElementById('backIndex').addEventListener('click', ()=> location.href = 'index.html');
+
+  document.getElementById('startLocal').addEventListener('click', () => {
+    const p1 = document.getElementById('local_p1').value.trim() || 'Fugitivo';
+    const p2 = document.getElementById('local_p2').value.trim() || 'Perseguidor';
+    // Guardamos sala en memoria global y redirigimos
+    window.__sala = {
+      modo: 'local',
+      jugadores: [
+        {id:1, nombre:p1, rol:'fugitivo'},
+        {id:2, nombre:p2, rol:'perseguidor'}
+      ]
+    };
+    location.href = 'juego.html';
+  });
+});
+</script>
 </body>
 </html>
-EOF
