@@ -1,61 +1,69 @@
 <!doctype html>
 <html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Bus</title>
-<link rel="stylesheet" href="styles.css">
-</head>
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Bus</title>
+<link rel="stylesheet" href="styles.css"></head>
 <body>
+  <main class="container">
+    <header class="card">
+      <h3 id="busTitle">Bus</h3>
+      <p id="busInfo" class="muted"></p>
+    </header>
 
-<h2 id="busTitulo">Bus</h2>
+    <section class="card">
+      <div id="nextStop">Próxima parada: —</div>
+      <div id="passengers">Pasajeros: —</div>
+    </section>
 
-<button id="btnTimbre" class="btn3">🔔 TIMBRE</button>
+    <section class="card">
+      <button class="btn" id="leaveBus">Salir del bus (simular bajada)</button>
+    </section>
+  </main>
 
-<div id="estado"></div>
-
-<audio id="audioParada"></audio>
-
+<script src="common.js"></script>
 <script>
+/* bus.html: recibe ?bus=ID y gestiona mensajes de la sala via postMessage */
+document.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const busId = params.get('bus') || 'bus-xxxx';
+  document.getElementById('busTitle').textContent = 'Bus ' + busId;
+  document.getElementById('busInfo').textContent = 'Tipo: Solaris (ejemplo)';
 
-function log(t){
-  document.getElementById("estado").innerHTML += t+"<br>";
-}
+  // estado interno ejemplo
+  let route = ['120','142','200']; // ejemplo de paradas del recorrido
+  let idx = 0;
+  let passengers = [];
 
-/* Recepción desde sala */
-window.addEventListener("message", e=>{
-  const { tipo, data } = e.data;
-
-  if (tipo === "INIT_BUS"){
-    document.getElementById("busTitulo").textContent =
-      "Bus " + data.busId + " — " + data.linea;
-
-    log("Subiste al bus.");
+  function updateUI(){
+    document.getElementById('nextStop').textContent = 'Próxima parada: ' + (route[idx] || 'Fin de recorrido');
+    document.getElementById('passengers').textContent = 'Pasajeros: ' + (passengers.length || 0);
   }
+  updateUI();
 
-  if (tipo === "CONFIRM_TIMBRE"){
-    log("✔ Timbre activado. Se solicitará bajada.");
-  }
+  // recibir mensajes desde la sala
+  window.addEventListener('message', (e) => {
+    const d = e.data || {};
+    if (d.type === 'request_stop') {
+      // marcar para detenerse en la próxima parada para ese pasajero
+      // notificar a la sala que hemos recibido la petición
+      e.source.postMessage({type: 'confirm_stop', bus: busId, for: d.playerId || null}, '*');
+    } else if (d.type === 'board') {
+      // pasajero sube
+      passengers.push(d.player || {nombre:'Anon'});
+      updateUI();
+      // notificar sala de capacidad restante (simulada)
+      e.source.postMessage({type:'boarded', bus:busId, capacityLeft: Math.max(0, 30 - passengers.length)}, '*');
+    }
+  });
 
+  // botón salir del bus (solo demo)
+  document.getElementById('leaveBus').addEventListener('click', ()=>{
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({type:'left_bus', bus:busId}, '*');
+    } else {
+      alert('Simulado: te bajas del bus');
+    }
+  });
 });
-
-/* TIMBRE */
-document.getElementById("btnTimbre").onclick = ()=>{
-  parent.postMessage({ tipo:"TIMBRE" }, "*");
-  document.addEventListener('DOMContentLoaded', () => {
-  const timbreBtn = document.getElementById('timbreBtn');
-  if (timbreBtn) {
-    timbreBtn.addEventListener('click', () => {
-      window.__willRequestStop = true;
-      // si necesitas notificar a un iframe que representa el bus:
-      const busFrame = document.getElementById('busFrame');
-      if (busFrame) busFrame.contentWindow.postMessage({type:'request_stop'}, '*');
-    });
-  }
-});
-
-};
-
 </script>
 </body>
 </html>
