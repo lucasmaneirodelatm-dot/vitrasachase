@@ -1,106 +1,49 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Bus - VITRASA CHASE</title>
-<style>
-  body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#071226;color:#fff;padding:18px}
-  .card{background:#071a2b;padding:14px;border-radius:10px;margin:10px 0}
-  h1{margin:0 0 6px}
-  .small{color:#9aa7b8;font-size:13px}
-  .actions{display:flex;gap:10px;margin-top:12px}
-  button{padding:10px 12px;border-radius:8px;border:none;cursor:pointer}
-  .btn-primary{background:#1e88e5;color:white}
-  .btn-danger{background:#ef4444;color:white}
-  .log{margin-top:12px;font-size:13px;color:#bcd}
-</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bus</title>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<div class="card">
-  <h1 id="title">Autobús</h1>
-  <div class="small" id="subtitle">Cargando...</div>
+<h2 id="busTitulo">Bus</h2>
 
-  <div style="margin-top:12px">
-    <strong>Estado del vehículo</strong>
-    <div id="busState" class="small">—</div>
-  </div>
+<button id="btnTimbre" class="btn3">🔔 TIMBRE</button>
 
-  <div class="actions">
-    <button class="btn-primary" id="timbreBtn">🔔 Timbre</button>
-    <button class="btn-danger" id="bajarBtn">🚏 Bajarse</button>
-  </div>
+<div id="estado"></div>
 
-  <div class="log" id="log"></div>
-</div>
+<audio id="audioParada"></audio>
 
-<div style="margin-top:8px">
-  <a href="parada.html">← Volver a paradas</a>
-</div>
+<script>
 
-<script type="module">
-  import { qs, loadJSON, BUSES_URL, GameState } from './logic.js';
+function log(t){
+  document.getElementById("estado").innerHTML += t+"<br>";
+}
 
-  (async function(){
-    const linea = qs('linea') || '??';
-    const parada = qs('parada') || '—';
-    const title = document.getElementById('title');
-    const subtitle = document.getElementById('subtitle');
-    const busState = document.getElementById('busState');
-    const timbreBtn = document.getElementById('timbreBtn');
-    const bajarBtn = document.getElementById('bajarBtn');
-    const log = document.getElementById('log');
+/* Recepción desde sala */
+window.addEventListener("message", e=>{
+  const { tipo, data } = e.data;
 
-    title.textContent = `Línea ${linea}`;
-    subtitle.textContent = `Subido en parada ${parada}`;
+  if (tipo === "INIT_BUS"){
+    document.getElementById("busTitulo").textContent =
+      "Bus " + data.busId + " — " + data.linea;
 
-    // intentar leer info real de buses.json
-    const buses = await loadJSON(BUSES_URL);
-    // buscar un bus plantilla para la linea
-    let busInfo = null;
-    if (Array.isArray(buses)) {
-      busInfo = buses.find(b => b.linea === linea || (b.lineas && b.lineas.includes(linea)));
-    }
+    log("Subiste al bus.");
+  }
 
-    if (!busInfo) {
-      // crear simulación ligera
-      busInfo = {
-        id: 'sim-' + Math.floor(Math.random()*9000+1000),
-        linea,
-        tipo: 'estándar',
-        capacidad: 30,
-        ocupados: Math.floor(Math.random()*10)
-      };
-    }
+  if (tipo === "CONFIRM_TIMBRE"){
+    log("✔ Timbre activado. Se solicitará bajada.");
+  }
 
-    busState.innerHTML = `Nº vehículo: <strong>${busInfo.id}</strong><br>Tipo: ${busInfo.tipo} · Ocupados: ${busInfo.ocupados}/${busInfo.capacidad}`;
+});
 
-    function addLog(text) {
-      const t = new Date().toLocaleTimeString();
-      log.innerHTML = `<div>[${t}] ${text}</div>` + log.innerHTML;
-    }
+/* TIMBRE */
+document.getElementById("btnTimbre").onclick = ()=>{
+  parent.postMessage({ tipo:"TIMBRE" }, "*");
+};
 
-    timbreBtn.addEventListener('click', () => {
-      addLog('Has pulsado el timbre. El conductor recibe la petición de parada.');
-      // Simular que la petición hace que la próxima parada esté marcada
-      sessionStorage.setItem('ultimaPeticion', JSON.stringify({ linea, parada, when: Date.now() }));
-    });
-
-    bajarBtn.addEventListener('click', () => {
-      addLog('Te bajas del autobús. Te devolvemos a la parada más cercana.');
-      // Simular que te bajas en la parada actual (redirigir a parada.html)
-      window.location.href = `parada.html?parada=${encodeURIComponent(parada)}`;
-    });
-
-    // auto-actualización del estado cada X segundos (simulación)
-    setInterval(() => {
-      // variación ligera en ocupación
-      busInfo.ocupados = Math.min(busInfo.capacidad, Math.max(0, busInfo.ocupados + (Math.random() > 0.5 ? 1 : -1)));
-      busState.innerHTML = `Nº vehículo: <strong>${busInfo.id}</strong><br>Tipo: ${busInfo.tipo} · Ocupados: ${busInfo.ocupados}/${busInfo.capacidad}`;
-    }, 5000);
-
-  })();
 </script>
 </body>
 </html>
