@@ -56,6 +56,26 @@ window.addEventListener("message", e => {
       "Caminando a la parada…";
   }
 });
+  <!-- parada.html (fragmento) -->
+<script>
+const params = new URLSearchParams(window.location.search);
+const stopId = params.get('stop'); // ejemplo: 6940
+if (!stopId) {
+  document.body.innerHTML = '<p>Error: falta parámetro stop</p>';
+} else {
+  // función que carga datos de la parada
+  loadParada(stopId);
+}
+function loadParada(id){
+  // peticiones a paradas.json o mostrar datos simulados
+  fetch('/paradas.json').then(r=>r.json()).then(j=>{
+    const p = j[id] || {nombre:'Parada desconocida'};
+    document.getElementById('paradaName').textContent = p.nombre;
+    renderBusListForParada(id);
+  });
+}
+<script>
+
 
 /* CAMINAR A OTRA PARADA */
 document.getElementById("btnCaminar").onclick = ()=>{
