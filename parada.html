@@ -1,98 +1,80 @@
 <!doctype html>
 <html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Parada</title>
-<link rel="stylesheet" href="styles.css">
-</head>
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Parada</title>
+<link rel="stylesheet" href="styles.css"></head>
 <body>
+  <main class="container">
+    <header class="card">
+      <h3 id="paradaName">Parada</h3>
+      <p id="paradaId" class="muted"></p>
+    </header>
 
-<h2 id="paradaTitulo">Parada</h2>
+    <section class="card">
+      <div id="paradaLines">Cargando líneas...</div>
+      <div id="nearbyBox" style="margin-top:10px;">
+        <!-- El usuario (tú) dejará aquí los recuadros de paradas cercanas; el procesador sólo expone el contenedor -->
+        <p class="muted">Coloca aquí tus recuadros de "caminar a..."</p>
+      </div>
+    </section>
 
-<div id="busList"></div>
+    <section class="card">
+      <button class="btn" id="backToRoom">↩ Volver a la sala</button>
+    </section>
+  </main>
 
-<button id="btnCaminar" class="btn2">🚶 Caminar a otra parada</button>
-
+<script src="common.js"></script>
 <script>
+/* parada.html: obtiene ?stop=ID y muestra datos */
+document.addEventListener('DOMContentLoaded', async () => {
+  const params = new URLSearchParams(window.location.search);
+  const stop = params.get('stop') || null;
+  const nameEl = document.getElementById('paradaName');
+  const idEl = document.getElementById('paradaId');
 
-  // ejemplo correcto de probabilidad
-const nowIndex = (Math.random() < 0.4) ? 0 : 1;
+  if (!stop) {
+    nameEl.textContent = 'Error: falta parámetro stop';
+    return;
+  }
+  idEl.textContent = 'ID: ' + stop;
 
-const eta = (i === nowIndex) ? 'ahora' : `${(i+1)*3} min`;
+  // intentar cargar paradas.json y lineas.json; si no existen, usamos fallback mínimo
+  let paradas = {};
+  try {
+    const r = await fetch('/paradas.json');
+    if (r.ok) paradas = await r.json();
+  } catch (e) { /* ignore */ }
 
-/* Recibir eventos de la sala */
-window.addEventListener("message", e => {
-  const { tipo, data } = e.data;
+  const parada = paradas[stop] || {nombre: 'Parada ' + stop, coords: null};
+  nameEl.textContent = parada.nombre;
 
-  if (tipo === "INIT_PARADA"){
-    document.getElementById("paradaTitulo").textContent =
-      "Parada " + data.id;
+  // Cargar lineas y filtrar las que pasan por esta parada
+  let lineas = [];
+  try {
+    const rl = await fetch('/lineas.json');
+    if (rl.ok) {
+      const lj = await rl.json();
+      lineas = (lj || []).filter(l => Array.isArray(l.paradas) && l.paradas.includes(stop));
+    }
+  } catch (e) {}
 
-    const cont = document.getElementById("busList");
-    cont.innerHTML = "";
-
-    data.buses.forEach(b => {
-      const div = document.createElement("div");
-      div.className = "bus";
-
-      div.innerHTML = `
-        <strong>${b.linea}</strong> — ${b.eta}
-        <button class="btnCoger" data-id="${b.id}" data-linea="${b.linea}">
-          🚌 Coger
-        </button>
-      `;
-
-      cont.appendChild(div);
-    });
-
-    document.querySelectorAll(".btnCoger").forEach(btn=>{
-      btn.onclick = ()=>{
-        parent.postMessage({
-          tipo:"COGER_BUS",
-          data:{ busId:btn.dataset.id, linea:btn.dataset.linea }
-        },"*");
-      };
-    });
+  const linesContainer = document.getElementById('paradaLines');
+  if (lineas.length === 0) {
+    linesContainer.innerHTML = '<p class="muted">No se han encontrado líneas (usando simulación).</p>';
+    // simulación simple: mostramos 3 ejemplos
+    linesContainer.innerHTML += '<ul><li>C1 — cada 10 min</li><li>L10 — cada 20 min</li><li>N1 — nocturno</li></ul>';
+  } else {
+    linesContainer.innerHTML = '<ul>' + lineas.map(L=>`<li>${L.id} — ${L.nombre} (${L.tipo||'diurno'})</li>`).join('') + '</ul>';
   }
 
-  if (tipo === "CAMINANDO"){
-    document.getElementById("paradaTitulo").textContent =
-      "Caminando a la parada…";
-  }
-});
-  <!-- parada.html (fragmento) -->
-<script>
-const params = new URLSearchParams(window.location.search);
-const stopId = params.get('stop'); // ejemplo: 6940
-if (!stopId) {
-  document.body.innerHTML = '<p>Error: falta parámetro stop</p>';
-} else {
-  // función que carga datos de la parada
-  loadParada(stopId);
-}
-function loadParada(id){
-  // peticiones a paradas.json o mostrar datos simulados
-  fetch('/paradas.json').then(r=>r.json()).then(j=>{
-    const p = j[id] || {nombre:'Parada desconocida'};
-    document.getElementById('paradaName').textContent = p.nombre;
-    renderBusListForParada(id);
+  document.getElementById('backToRoom').addEventListener('click', ()=> {
+    // si estamos en iframe, usamos postMessage para avisar a la sala, si no, cerramos
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({type:'parada_closed', stop}, '*');
+    } else {
+      window.history.back();
+    }
   });
-}
-<script>
-
-
-/* CAMINAR A OTRA PARADA */
-document.getElementById("btnCaminar").onclick = ()=>{
-  const destino = prompt("ID de la parada a la que quieres caminar:");
-  if (!destino) return;
-
-  parent.postMessage({
-    tipo:"CAMINAR_A",
-    data:{ destino }
-  },"*");
-};
-
+});
 </script>
 </body>
 </html>
