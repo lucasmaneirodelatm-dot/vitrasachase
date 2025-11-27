@@ -42,6 +42,18 @@ window.addEventListener("message", e=>{
 /* TIMBRE */
 document.getElementById("btnTimbre").onclick = ()=>{
   parent.postMessage({ tipo:"TIMBRE" }, "*");
+  document.addEventListener('DOMContentLoaded', () => {
+  const timbreBtn = document.getElementById('timbreBtn');
+  if (timbreBtn) {
+    timbreBtn.addEventListener('click', () => {
+      window.__willRequestStop = true;
+      // si necesitas notificar a un iframe que representa el bus:
+      const busFrame = document.getElementById('busFrame');
+      if (busFrame) busFrame.contentWindow.postMessage({type:'request_stop'}, '*');
+    });
+  }
+});
+
 };
 
 </script>
