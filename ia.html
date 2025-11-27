@@ -1,45 +1,59 @@
-cat > ia.html <<'EOF'
 <!doctype html>
 <html lang="es">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>VITRASA CHASE - Contra IA</title>
+<title>VITRASA CHASE — Contra IA</title>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<div id="loader" class="loader"><img src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/LoaderAvanza.gif" alt="loader"></div>
+  <div id="loader" class="loader"><img src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/LoaderAvanza.gif" alt="loader"></div>
+  <main id="main" class="hidden container">
+    <img id="logo" src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/Logo-principal.png" alt="logo">
+    <h2>🤖 Jugar contra la IA</h2>
 
-<main id="main" class="hidden">
-  <h1>Contra IA</h1>
-  <form id="iaForm">
-    <label>Tu nombre</label>
-    <input id="ia_name" placeholder="Tu nombre">
+    <div class="card">
+      <label>Tu nombre</label>
+      <input id="ia_name" placeholder="Tu nombre">
+      <label>Elige tu rol</label>
+      <select id="ia_role">
+        <option value="fugitivo">Fugitivo</option>
+        <option value="perseguidor">Perseguidor</option>
+      </select>
+      <label>Nivel de la IA</label>
+      <select id="ia_level">
+        <option value="easy">Fácil</option>
+        <option value="normal" selected>Normal</option>
+        <option value="hard">Difícil</option>
+      </select>
 
-    <label>Elige rol</label>
-    <select id="ia_role">
-      <option value="fugitivo">Fugitivo</option>
-      <option value="perseguidor">Perseguidor</option>
-    </select>
+      <div style="margin-top:12px;">
+        <button class="btn" id="startIA">🚀 Empezar vs IA</button>
+        <button class="btn ghost" id="backIndex">↩ Volver</button>
+      </div>
+    </div>
+    <div id="log" class="log"></div>
+  </main>
 
-    <label>Nivel IA</label>
-    <select id="ia_level">
-      <option value="easy">Fácil</option>
-      <option value="normal" selected>Normal</option>
-      <option value="hard">Difícil</option>
-    </select>
+<script src="common.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  waitForResourcesThenShow();
 
-    <button id="startIA" class="btn" type="button">🚀 Empezar vs IA</button>
-  </form>
+  document.getElementById('backIndex').addEventListener('click', ()=> location.href = 'index.html');
 
-  <div id="room" class="hidden">
-    <h2 id="roomTitle">Sala IA</h2>
-    <div id="scene"></div>
-    <button id="back" class="btn">⬅️ Volver al menú</button>
-  </div>
-</main>
+  document.getElementById('startIA').addEventListener('click', () => {
+    const name = document.getElementById('ia_name').value.trim() || 'Jugador';
+    const role = document.getElementById('ia_role').value || 'fugitivo';
+    const nivel = document.getElementById('ia_level').value || 'normal';
 
-<script src="logic.js"></script>
+    const player = {id:1, nombre:name, rol: role};
+    const ia = {id:2, nombre:'IA', rol: role === 'fugitivo' ? 'perseguidor' : 'fugitivo', ai:true, nivel};
+
+    window.__sala = {modo:'ia', jugadores: [player, ia]};
+    location.href = 'juego.html';
+  });
+});
+</script>
 </body>
 </html>
-EOF
