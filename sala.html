@@ -1,19 +1,41 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SALA — Vitrasa Chase</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>VITRASA CHASE — Partida</title>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <div id="loader" class="loader"><img src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/LoaderAvanza.gif" alt="loader"></div>
 
-<div id="loader" class="loader">
-  <img src="LoaderAvanza.gif" alt="loader">
-</div>
+  <main id="main" class="hidden container">
+    <header class="card">
+      <h2 id="roomTitle">VITRASA CHASE</h2>
+      <div id="roleBadge" class="roleBadge">Rol: —</div>
+    </header>
 
-<iframe id="frame" src="parada.html" class="full"></iframe>
+    <section class="card" id="paradaPanel">
+      <h3 id="paradaInfo">Cargando parada...</h3>
+      <div id="busList"></div>
+      <div id="mapPlaceholder" class="map"></div>
+      <div id="actionButtons" style="margin-top:10px;">
+        <button class="btn hidden" id="cogerBtn">🛑 Coger</button>
+        <button class="btn ghost" id="timbreBtn">🔔 Timbre (solicitar bajada)</button>
+      </div>
+    </section>
 
-<script src="sala.js"></script>
+    <section class="card">
+      <h4>Registro</h4>
+      <div id="log" class="log"></div>
+    </section>
+
+    <section style="margin-top:12px">
+      <button class="btn ghost" id="exitBtn">Salir a menú</button>
+    </section>
+  </main>
+
+<script src="common.js"></script>
+<script src="game.js"></script>
 </body>
 </html>
