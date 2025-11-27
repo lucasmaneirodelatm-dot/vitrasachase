@@ -1,120 +1,73 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Parada - VITRASA CHASE</title>
-<style>
-  body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#0b1220;color:#fff;padding:18px}
-  a{color:#8fcfff}
-  .card{background:#0f1724;padding:14px;border-radius:10px;margin:10px 0}
-  .header{display:flex;align-items:center;gap:12px}
-  .logo{width:72px}
-  h1{margin:8px 0 4px}
-  .small{color:#9aa7b8;font-size:13px}
-  .list{margin-top:12px}
-  .arrival{display:flex;justify-content:space-between;padding:10px;border-radius:8px;background:#071226;margin:8px 0;align-items:center}
-  .btn{background:#14b8a6;padding:8px 12px;border-radius:8px;color:#022;cursor:pointer;border:none}
-  .btn:active{transform:translateY(1px)}
-  #mapWrap{margin-top:10px}
-</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parada</title>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<div class="header">
-  <img class="logo" src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/logo_vitrasa.png" alt="logo">
-  <div>
-    <div class="small">🚌 VITRASA CHASE</div>
-    <h1 id="stopName">Parada</h1>
-    <div class="small" id="stopCode">Código: —</div>
-  </div>
-</div>
+<h2 id="paradaTitulo">Parada</h2>
 
-<div class="card">
-  <div id="stopInfo">Cargando información de la parada…</div>
-  <div id="mapWrap"></div>
-</div>
+<div id="busList"></div>
 
-<div class="card">
-  <strong>Próximas llegadas</strong>
-  <div id="arrivals" class="list"></div>
-</div>
+<button id="btnCaminar" class="btn2">🚶 Caminar a otra parada</button>
 
-<div style="margin-top:12px">
-  <a href="local.html">← Volver al menú</a>
-</div>
+<script>
 
-<script type="module">
-  import {
-    qs, loadJSON, PARADAS_URL, LINEAS_URL,
-    GameState, findStopByCode, computeArrivalsForStop, nextArrivalLabel, buildMapHTML
-  } from './logic.js';
+/* Recibir eventos de la sala */
+window.addEventListener("message", e => {
+  const { tipo, data } = e.data;
 
-  (async function(){
-    const codigo = qs('parada') || qs('stop') || '6620';
-    const paradas = await loadJSON(PARADAS_URL);
-    const lineas  = await loadJSON(LINEAS_URL);
+  if (tipo === "INIT_PARADA"){
+    document.getElementById("paradaTitulo").textContent =
+      "Parada " + data.id;
 
-    const stop = findStopByCode(paradas || [], codigo);
-    const stopNameEl = document.getElementById('stopName');
-    const stopCodeEl = document.getElementById('stopCode');
-    const stopInfoEl = document.getElementById('stopInfo');
-    const mapWrapEl = document.getElementById('mapWrap');
-    const arrivalsEl = document.getElementById('arrivals');
+    const cont = document.getElementById("busList");
+    cont.innerHTML = "";
 
-    if (!stop) {
-      stopNameEl.textContent = 'Parada no encontrada';
-      stopCodeEl.textContent = `Código: ${codigo}`;
-      stopInfoEl.innerHTML = `<div class="small">No hay datos para esa parada en ${PARADAS_URL}</div>`;
-      return;
-    }
+    data.buses.forEach(b => {
+      const div = document.createElement("div");
+      div.className = "bus";
 
-    stopNameEl.textContent = stop.nombre || stop.name || stop.label || 'Parada';
-    stopCodeEl.textContent = `Código: ${stop.codigo || stop.id || stop.code || '—'}`;
-    stopInfoEl.innerHTML = `<div class="small">${stop.direccion || stop.address || ''}</div>
-                            <div class="small">Líneas: ${Array.isArray(stop.lineas) ? stop.lineas.join(', ') : (stop.lineas || stop.lines || '')}</div>`;
+      div.innerHTML = `
+        <strong>${b.linea}</strong> — ${b.eta}
+        <button class="btnCoger" data-id="${b.id}" data-linea="${b.linea}">
+          🚌 Coger
+        </button>
+      `;
 
-    // map
-    mapWrapEl.innerHTML = buildMapHTML(stop);
-
-    // arrivals
-    const arrivals = computeArrivalsForStop(stop, lineas);
-    arrivalsEl.innerHTML = '';
-    arrivals.forEach(a => {
-      const tiempoTxt = nextArrivalLabel(a.tiempo);
-      const div = document.createElement('div');
-      div.className = 'arrival';
-      const left = document.createElement('div');
-      left.innerHTML = `<div style="font-weight:700">${a.linea}</div><div class="small">línea</div>`;
-      const right = document.createElement('div');
-      right.style.textAlign = 'right';
-      right.innerHTML = `<div style="font-weight:700">${tiempoTxt}</div><div class="small">llegada</div>`;
-      div.appendChild(left);
-      div.appendChild(right);
-
-      // si 'ahora' mostramos botón coger
-      const isAhora = (String(tiempoTxt).toLowerCase().includes('ahora'));
-      if (isAhora) {
-        const cogerBtn = document.createElement('button');
-        cogerBtn.className = 'btn';
-        cogerBtn.style.marginLeft = '10px';
-        cogerBtn.textContent = 'Coger';
-        cogerBtn.onclick = () => {
-          // Simulación básica: crear "bus" y subir jugador
-          sessionStorage.setItem('lastSubida', JSON.stringify({ parada: stop.codigo || stop.id || codigo, linea: a.linea, when: Date.now() }));
-          // redirigimos a bus.html con dato de linea
-          window.location.href = `bus.html?linea=${encodeURIComponent(a.linea)}&parada=${encodeURIComponent(stop.codigo||codigo)}`;
-        };
-
-        // mostrar botón junto a tiempo
-        right.appendChild(document.createElement('br'));
-        right.appendChild(cogerBtn);
-      }
-
-      arrivalsEl.appendChild(div);
+      cont.appendChild(div);
     });
 
-  })();
+    document.querySelectorAll(".btnCoger").forEach(btn=>{
+      btn.onclick = ()=>{
+        parent.postMessage({
+          tipo:"COGER_BUS",
+          data:{ busId:btn.dataset.id, linea:btn.dataset.linea }
+        },"*");
+      };
+    });
+  }
+
+  if (tipo === "CAMINANDO"){
+    document.getElementById("paradaTitulo").textContent =
+      "Caminando a la parada…";
+  }
+});
+
+/* CAMINAR A OTRA PARADA */
+document.getElementById("btnCaminar").onclick = ()=>{
+  const destino = prompt("ID de la parada a la que quieres caminar:");
+  if (!destino) return;
+
+  parent.postMessage({
+    tipo:"CAMINAR_A",
+    data:{ destino }
+  },"*");
+};
+
 </script>
 </body>
 </html>
