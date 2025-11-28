@@ -1,122 +1,128 @@
-/* ---------------------------
-   MOTOR CENTRAL DE LA SALA
----------------------------- */
+// sala.js — lógica principal del juego
 
-const iframe = document.getElementById("frame");
-const LOADER = document.getElementById("loader");
-
-function mostrarLoader() { LOADER.style.display = "flex"; }
-function ocultarLoader() { LOADER.style.display = "none"; }
-
-/* Estado global */
-window.SALA = {
-  modo: "local",
-  jugadores: [
-    { nombre:"Jugador 1", rol:"fugitivo" },
-    { nombre:"Jugador 2", rol:"perseguidor" }
-  ],
-  reloj: Date.now(),   
-  paradaActual: null,
-  andandoA: null
+window.sala = {
+  jugadores: [],
+  modo:"local",
+  vista:"parada",
+  paradaActual:null,
+  busActual:null,
+  pedirBajada:false
 };
 
-/* ---------------------------
-   ENVIAR EVENTO A UNA VISTA
----------------------------- */
-function sendToView(evento){
-  iframe.contentWindow.postMessage(evento, "*");
-}
 
-/* ---------------------------
-   CAMBIAR A VISTA PARADA
----------------------------- */
-function cargarParada(id){
-  mostrarLoader();
-  SALA.paradaActual = id;
+/* CAMBIAR VISTA */
+window.cargarVista = async function(tipo, datos={}){
+  const cont = document.getElementById("vista");
+  if (!cont) return;
 
-  iframe.src = "parada.html";
+  if (tipo === "parada"){
+    sala.vista = "parada";
+    sala.paradaActual = datos;
 
-  iframe.onload = () => {
-    ocultarLoader();
-    sendToView({
-      tipo:"INIT_PARADA",
-      data:{
-        id,
-        nombre:"Parada " + id,
-        buses: generarBusesDemo(id),
-        jugadores: SALA.jugadores
-      }
-    });
+    cont.innerHTML = `
+      <div class="card">
+        <h2>🅿 Parada ${datos.id}</h2>
+        <p>${datos.nombre}</p>
+
+        <div id="busList"></div>
+
+        <div class="walk-box">
+          <strong>🚶 Caminar</strong>
+          <p>Ejemplo: paradas cercanas:</p>
+          <button class="btn" onclick="caminarA('001')">→ Parada 001</button>
+          <button class="btn" onclick="caminarA('002')">→ Parada 002</button>
+        </div>
+      </div>
+    `;
+
+    renderBusesParada();
+
+  } else if (tipo === "bus"){
+
+    sala.vista = "bus";
+    sala.busActual = datos;
+    sala.pedirBajada = false;
+
+    cont.innerHTML = `
+      <div class="card">
+        <h2>🚌 Bus ${datos.linea} — ${datos.num}</h2>
+        <p>Tipo: ${datos.tipo}</p>
+
+        <div id="proxima"></div>
+
+        <button class="timbre-btn" onclick="tocarTimbre()">🔔 Timbrar</button>
+      </div>
+    `;
+
+    simularBus();
+
+  }
+};
+
+/* PARADAS CERCANAS (placeholder) */
+window.caminarA = function(id){
+  let nueva = {
+    id,
+    nombre:"Parada "+id
   };
-}
+  cargarVista("parada", nueva);
+};
 
-/* ---------------------------
-   CAMBIAR A VISTA BUS
----------------------------- */
-function cargarBus(busId, linea){
-  mostrarLoader();
+/* TOCAR TIMBRE */
+window.tocarTimbre = function(){
+  sala.pedirBajada = true;
+  playClip("https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/timbre.mp3");
+};
 
-  iframe.src = "bus.html";
+/* SIMULAR BUSES */
+window.renderBusesParada = function(){
+  const o = document.getElementById("busList");
+  if (!o) return;
 
-  iframe.onload = () => {
-    ocultarLoader();
-
-    sendToView({
-      tipo:"INIT_BUS",
-      data:{
-        busId,
-        linea,
-        jugadores:SALA.jugadores
-      }
-    });
-  };
-}
-
-/* ---------------------------
-   BUS DEMO (simulación)
----------------------------- */
-function generarBusesDemo(id){
-  return [
-    { id:6001, linea:"L11", eta:"3 min" },
-    { id:6002, linea:"C1", eta:"8 min" },
-    { id:6003, linea:"27", eta:"ahora" }
+  let buses = [
+    { linea:"L10", num:8425, eta:"3 min", tipo:"normal" },
+    { linea:"C1", num:6002, eta:"ahora", tipo:"normal" },
+    { linea:"L11", num:2310, eta:"8 min", tipo:"refuerzo" }
   ];
-}
 
-/* ---------------------------
-   RECEPCIÓN DE MENSAJES
----------------------------- */
-window.addEventListener("message", e => {
-  const { tipo, data } = e.data;
+  o.innerHTML = ``;
 
-  // --- Parada pide coger bus ---
-  if (tipo === "COGER_BUS") {
-    cargarBus(data.busId, data.linea);
-  }
+  buses.forEach(b=>{
+    const div = document.createElement("div");
+    div.className="parada-box";
+    div.innerHTML = `
+      <strong>${b.linea} (${b.num})</strong> — ${b.eta}
+      ${b.eta==="ahora" ? `<br><button class="btn" onclick="subirBus(${b.num}, '${b.linea}')">Coger bus</button>` : "" }
+    `;
+    o.appendChild(div);
+  });
+};
 
-  // --- Jugador pulsó timbre ---
-  if (tipo === "TIMBRE") {
-    sendToView({ tipo:"CONFIRM_TIMBRE" });
-  }
+window.subirBus = function(num, linea){
+  cargarVista("bus", {num, linea, tipo:"normal"});
+};
 
-  // --- Bus indica que se debe bajar ---
-  if (tipo === "BAJAR_EN_PROXIMA") {
-    cargarParada(data.parada);
-  }
+/* SIMULAR BUS */
+window.simularBus = function(){
+  const el = document.getElementById("proxima");
+  if (!el) return;
 
-  // --- Caminar a otra parada ---
-  if (tipo === "CAMINAR_A") {
-    SALA.andandoA = data.destino;
+  let n = 0;
+  let interval = setInterval(()=>{
 
-    sendToView({ tipo:"CAMINANDO" });
+    if (sala.pedirBajada){
+      clearInterval(interval);
+      cargarVista("parada", {id:"X"+Math.floor(Math.random()*999), nombre:"Parada aleatoria"});
+      return;
+    }
 
-    setTimeout(()=>{
-      cargarParada(data.destino);
-    }, 2000); // 2 segundos de demo, tú luego cambias tiempos reales
-  }
-});
+    n++;
+    el.innerHTML = `<p>Próxima parada: ${n}</p>`;
 
-/* ---------------------------
-   INICIO AUTOMÁTICO
----------------------------- */
-cargarParada(6620);
+    if (n >= 3){
+      clearInterval(interval);
+      cargarVista("parada", {id:"F"+Math.floor(Math.random()*999), nombre:"Fin de trayecto"});
+    }
+
+  }, 3000);
+};
