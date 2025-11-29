@@ -1,62 +1,43 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Contra IA</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>VITRASA CHASE — IA</title>
 <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
 
 <div id="loader" class="loader">
-  <img src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/LoaderAvanza.gif">
+  <img src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/main/LoaderAvanza.gif">
 </div>
 
-<main id="main" class="hidden">
+<main id="main" class="hidden fadein">
 
-  <h2>🤖 IA</h2>
+  <h1>🤖 Contra IA</h1>
 
-  <div class="card">
-    <label>Tu nombre:</label>
-    <input id="me">
+  <label>Tu nombre:</label>
+  <input type="text" id="ia_name">
 
-    <label>Tu rol:</label>
-    <select id="rol">
-      <option value="fugitivo">Fugitivo</option>
-      <option value="perseguidor">Perseguidor</option>
-    </select>
+  <label>Tu rol:</label>
+  <select id="ia_role">
+    <option value="fugitivo">Fugitivo</option>
+    <option value="perseguidor">Perseguidor</option>
+  </select>
 
-    <label>Nivel IA:</label>
-    <select id="lvl">
-      <option>fácil</option>
-      <option>normal</option>
-      <option>difícil</option>
-    </select>
+  <label>Nivel IA:</label>
+  <select id="ia_level">
+    <option value="facil">Fácil</option>
+    <option value="normal" selected>Normal</option>
+    <option value="dificil">Difícil</option>
+  </select>
 
-    <button class="btn" onclick="startIA()">Jugar</button>
-  </div>
+  <button id="startIA" class="btn green">Iniciar partida</button>
+  <button class="btn gray" onclick="location.href='index.html'">← Volver</button>
 
 </main>
 
-<script src="common.js"></script>
-<script>
-waitForResourcesThenShow();
-
-function startIA(){
-  const yo = document.getElementById("me").value || "Jugador";
-  const rol = document.getElementById("rol").value;
-  const lvl = document.getElementById("lvl").value;
-
-  const iaRol = rol==="fugitivo" ? "perseguidor" : "fugitivo";
-
-  localStorage.setItem("salaJugadores", JSON.stringify([
-    {nombre:yo, rol},
-    {nombre:"IA ("+lvl+")", rol:iaRol}
-  ]));
-
-  location.href = "sala.html";
-}
-</script>
-
+<script src="logic.js"></script>
 </body>
 </html>
