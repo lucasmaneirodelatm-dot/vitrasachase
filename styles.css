@@ -1,76 +1,45 @@
-body {
+body{
   margin:0;
-  font-family: Arial, sans-serif;
-  background:#e6f0ff;
-  color:#003366;
+  background:#eef2f7;
+  font-family:Arial, sans-serif;
 }
 
-.hidden { display:none; }
-
-#loader {
+.loader{
   position:fixed;
-  top:0; left:0;
-  width:100%; height:100%;
+  top:0;left:0;width:100%;height:100%;
   background:white;
   display:flex;
   justify-content:center;
   align-items:center;
   z-index:99;
 }
+.hidden{ display:none; }
 
-.btn {
+main{
+  padding:20px;
+  max-width:600px;
+  margin:auto;
+}
+
+.btn{
   display:block;
-  background:#0066cc;
-  color:white;
-  padding:12px;
   margin:10px auto;
-  text-align:center;
-  border-radius:8px;
-  text-decoration:none;
-  width:240px;
-}
-
-.btn:hover { background:#004c99; }
-
-.card {
-  background:white;
-  margin:12px;
-  padding:18px;
-  border-radius:10px;
-  box-shadow:0 0 8px rgba(0,0,0,0.1);
-}
-
-.parada-box {
-  background:#ffffff;
-  border-left:5px solid #0066cc;
-  padding:15px;
-  margin-top:10px;
-  border-radius:8px;
-}
-
-.walk-box {
-  background:#fff7d6;
-  padding:10px;
-  border-radius:8px;
-  border-left:4px solid #ffcc00;
-  margin-top:12px;
-}
-
-.bus-box {
-  background:#d9ffe1;
-  border-left:5px solid #00aa44;
   padding:12px;
-  margin-top:10px;
-  border-radius:8px;
-}
-
-.timbre-btn {
-  display:block;
-  padding:13px;
-  background:#ff3333;
-  color:white;
-  border-radius:12px;
+  background:#0077cc;
+  color:#fff;
   text-align:center;
-  margin-top:15px;
-  font-size:18px;
+  border-radius:10px;
+  text-decoration:none;
+}
+.btn.green{ background:#28a745; }
+.btn.yellow{ background:#f7b500; }
+.btn.gray{ background:#555; }
+.btn.small{ font-size:14px;padding:8px; }
+
+.card{
+  background:white;
+  padding:15px;
+  margin:15px 0;
+  border-radius:12px;
+  box-shadow:0 2px 4px rgba(0,0,0,0.1);
 }
