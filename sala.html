@@ -3,41 +3,50 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sala — Vitrasa Chase</title>
+<title>Vitrasa Chase — Sala</title>
 <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
 
 <div id="loader" class="loader">
-  <img src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/LoaderAvanza.gif">
+  <img src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/main/LoaderAvanza.gif">
 </div>
 
-<main id="main" class="hidden">
+<main id="main" class="hidden fadein">
 
-  <h1>🎮 Sala de Juego</h1>
-  <p id="info"></p>
+  <h2 id="roomTitle">Cargando sala…</h2>
 
-  <div id="vista"></div>
+  <!-- PARADA -->
+  <section id="paradaBlock" class="card">
+    <div id="paradaInfo">Cargando parada…</div>
+    <div id="busList"></div>
+
+    <button id="cogerBtn" class="btn hidden">🚌 Coger este bus</button>
+
+    <h4>Caminar a una parada cercana</h4>
+    <div id="paradasCercanas"></div>
+  </section>
+
+  <!-- BUS -->
+  <section id="busBlock" class="card hidden">
+    <h3 id="busTitle">Bus</h3>
+    <p id="busInfo">Cargando…</p>
+
+    <button id="timbreBtn" class="btn yellow">🔔 Timbre</button>
+  </section>
+
+  <!-- MAPA -->
+  <section class="card">
+    <h3>Mapa</h3>
+    <div id="mapArea">Mapa cargando…</div>
+  </section>
 
 </main>
 
-<script src="common.js"></script>
+<script src="datos.js"></script>
+<script src="logic.js"></script>
 <script src="sala.js"></script>
-<script>
-waitForResourcesThenShow();
-
-// Jugadores ejemplo
-sala.jugadores = [
-  {nombre:"Jugador 1", rol:"fugitivo"},
-  {nombre:"Jugador 2", rol:"perseguidor"}
-];
-
-// Primera parada al entrar
-cargarVista("parada", {
-  id:"6620",
-  nombre:"Rúa de Policarpo Sanz, 40"
-});
-</script>
 
 </body>
 </html>
