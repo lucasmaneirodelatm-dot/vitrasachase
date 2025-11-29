@@ -1,128 +1,130 @@
-// sala.js — lógica principal del juego
-
-window.sala = {
-  jugadores: [],
-  modo:"local",
-  vista:"parada",
+// Sala global
+let SALA = {
+  modo:null,
+  jugadores:[],
+  ia:null,
+  estado:"parada",
   paradaActual:null,
-  busActual:null,
-  pedirBajada:false
+  busActual:null
 };
 
+document.addEventListener("DOMContentLoaded", () => {
 
-/* CAMBIAR VISTA */
-window.cargarVista = async function(tipo, datos={}){
-  const cont = document.getElementById("vista");
-  if (!cont) return;
-
-  if (tipo === "parada"){
-    sala.vista = "parada";
-    sala.paradaActual = datos;
-
-    cont.innerHTML = `
-      <div class="card">
-        <h2>🅿 Parada ${datos.id}</h2>
-        <p>${datos.nombre}</p>
-
-        <div id="busList"></div>
-
-        <div class="walk-box">
-          <strong>🚶 Caminar</strong>
-          <p>Ejemplo: paradas cercanas:</p>
-          <button class="btn" onclick="caminarA('001')">→ Parada 001</button>
-          <button class="btn" onclick="caminarA('002')">→ Parada 002</button>
-        </div>
-      </div>
-    `;
-
-    renderBusesParada();
-
-  } else if (tipo === "bus"){
-
-    sala.vista = "bus";
-    sala.busActual = datos;
-    sala.pedirBajada = false;
-
-    cont.innerHTML = `
-      <div class="card">
-        <h2>🚌 Bus ${datos.linea} — ${datos.num}</h2>
-        <p>Tipo: ${datos.tipo}</p>
-
-        <div id="proxima"></div>
-
-        <button class="timbre-btn" onclick="tocarTimbre()">🔔 Timbrar</button>
-      </div>
-    `;
-
-    simularBus();
-
+  if(window.__salaLocal){
+    SALA = window.__salaLocal;
   }
-};
+  if(window.__salaIA){
+    SALA = window.__salaIA;
+  }
 
-/* PARADAS CERCANAS (placeholder) */
-window.caminarA = function(id){
-  let nueva = {
-    id,
-    nombre:"Parada "+id
-  };
-  cargarVista("parada", nueva);
-};
+  initSala();
+});
 
-/* TOCAR TIMBRE */
-window.tocarTimbre = function(){
-  sala.pedirBajada = true;
-  playClip("https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/timbre.mp3");
-};
+function initSala(){
+  document.getElementById("roomTitle").textContent =
+    `Sala — ${SALA.modo === "local" ? "Juego Local" : "Contra IA"}`;
 
-/* SIMULAR BUSES */
-window.renderBusesParada = function(){
-  const o = document.getElementById("busList");
-  if (!o) return;
+  cargarParadaAleatoria();
+}
 
-  let buses = [
-    { linea:"L10", num:8425, eta:"3 min", tipo:"normal" },
-    { linea:"C1", num:6002, eta:"ahora", tipo:"normal" },
-    { linea:"L11", num:2310, eta:"8 min", tipo:"refuerzo" }
-  ];
+function cargarParadaAleatoria(){
+  const ids = Object.keys(PARADAS);
+  const parada = PARADAS[randomItem(ids)];
 
-  o.innerHTML = ``;
+  SALA.paradaActual = parada;
+  SALA.estado = "parada";
 
-  buses.forEach(b=>{
-    const div = document.createElement("div");
-    div.className="parada-box";
-    div.innerHTML = `
-      <strong>${b.linea} (${b.num})</strong> — ${b.eta}
-      ${b.eta==="ahora" ? `<br><button class="btn" onclick="subirBus(${b.num}, '${b.linea}')">Coger bus</button>` : "" }
-    `;
-    o.appendChild(div);
+  mostrarParada();
+}
+
+function mostrarParada(){
+  const p = SALA.paradaActual;
+
+  document.getElementById("paradaInfo").innerHTML =
+    `<h3>Parada ${p.id}</h3><p>${p.nombre}</p>`;
+
+  // Caminar
+  let html = "";
+  p.cercanas.forEach(c=>{
+    const pa = PARADAS[c];
+    html += `<button class="btn small" onclick="irAPie('${c}')">🚶 ${pa.nombre}</button>`;
   });
-};
+  document.getElementById("paradasCercanas").innerHTML = html;
 
-window.subirBus = function(num, linea){
-  cargarVista("bus", {num, linea, tipo:"normal"});
-};
+  // Buses
+  const buses = simularBuses(p);
+  renderBuses(buses);
 
-/* SIMULAR BUS */
-window.simularBus = function(){
-  const el = document.getElementById("proxima");
-  if (!el) return;
+  // Bloques visibles/invisibles
+  document.getElementById("paradaBlock").classList.remove("hidden");
+  document.getElementById("busBlock").classList.add("hidden");
+}
 
-  let n = 0;
-  let interval = setInterval(()=>{
+function renderBuses(lista){
+  const div = document.getElementById("busList");
+  div.innerHTML = "";
 
-    if (sala.pedirBajada){
-      clearInterval(interval);
-      cargarVista("parada", {id:"X"+Math.floor(Math.random()*999), nombre:"Parada aleatoria"});
-      return;
+  lista.forEach(b=>{
+    const el = document.createElement("div");
+    el.className = "busRow";
+    el.innerHTML = `
+      <strong>${b.linea}</strong> (${b.numero}) — ${b.eta}
+    `;
+    div.appendChild(el);
+
+    if(b.eta === "ahora"){
+      const btn = document.getElementById("cogerBtn");
+      btn.classList.remove("hidden");
+      btn.onclick = ()=> cogerBus(b);
     }
+  });
+}
 
-    n++;
-    el.innerHTML = `<p>Próxima parada: ${n}</p>`;
+function simularBuses(){
+  const out = [];
 
-    if (n >= 3){
-      clearInterval(interval);
-      cargarVista("parada", {id:"F"+Math.floor(Math.random()*999), nombre:"Fin de trayecto"});
-    }
+  const names = Object.keys(LINEAS);
+  let now = Math.random() < 0.5;
 
-  }, 3000);
-};
+  for(let i=0;i<3;i++){
+    out.push({
+      numero:6000+i,
+      linea:randomItem(names),
+      eta: i===0 && now ? "ahora" : (3+i*2)+" min"
+    });
+  }
+  return out;
+}
+
+function cogerBus(b){
+  SALA.estado="bus";
+  SALA.busActual=b;
+  mostrarBus();
+}
+
+function mostrarBus(){
+  const b = SALA.busActual;
+
+  document.getElementById("busTitle").textContent =
+    `Bus ${b.numero} — Línea ${b.linea}`;
+
+  document.getElementById("busInfo").textContent =
+    `Próxima parada en 6 segundos…`;
+
+  document.getElementById("paradaBlock").classList.add("hidden");
+  document.getElementById("busBlock").classList.remove("hidden");
+
+  setTimeout(()=>{
+    bajarEnParadaAleatoria();
+  },6000);
+}
+
+function bajarEnParadaAleatoria(){
+  SALA.busActual=null;
+  cargarParadaAleatoria();
+}
+
+function irAPie(id){
+  SALA.paradaActual = PARADAS[id];
+  mostrarParada();
+}
