@@ -1,49 +1,35 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Local</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>VITRASA CHASE — LOCAL</title>
 <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
 
 <div id="loader" class="loader">
-  <img src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/LoaderAvanza.gif">
+  <img src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/main/LoaderAvanza.gif">
 </div>
 
-<main id="main" class="hidden">
+<main id="main" class="hidden fadein">
 
-  <h2>🏠 Juego Local</h2>
+  <h1>🏠 Juego Local</h1>
+  <p>Ambos jugadores comparten pantalla.</p>
 
-  <div class="card">
-    <label>Jugador fugitivo:</label>
-    <input id="j1" type="text">
+  <label>Jugador 1 (Fugitivo):</label>
+  <input type="text" id="p1" placeholder="Nombre">
 
-    <label>Jugador perseguidor:</label>
-    <input id="j2" type="text">
+  <label>Jugador 2 (Perseguidor):</label>
+  <input type="text" id="p2" placeholder="Nombre">
 
-    <button class="btn" onclick="iniciar()">Comenzar</button>
-  </div>
+  <button id="startLocal" class="btn green">Iniciar partida</button>
+
+  <button class="btn gray" onclick="location.href='index.html'">← Volver</button>
 
 </main>
 
-<script src="common.js"></script>
-<script>
-waitForResourcesThenShow();
-
-function iniciar(){
-  const a = document.getElementById("j1").value || "Fugitivo";
-  const b = document.getElementById("j2").value || "Perseguidor";
-
-  localStorage.setItem("salaJugadores", JSON.stringify([
-    {nombre:a, rol:"fugitivo"},
-    {nombre:b, rol:"perseguidor"}
-  ]));
-
-  location.href = "sala.html";
-}
-</script>
-
+<script src="logic.js"></script>
 </body>
 </html>
