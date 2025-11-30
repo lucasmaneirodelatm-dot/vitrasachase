@@ -1,43 +1,40 @@
 <!doctype html>
 <html lang="es">
-<head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>VITRASA CHASE — IA</title>
-<link rel="stylesheet" href="styles.css">
-</head>
-
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Vitrasa Chase — IA</title>
+<link rel="stylesheet" href="styles.css"></head>
 <body>
-
-<div id="loader" class="loader">
-  <img src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/main/LoaderAvanza.gif">
-</div>
-
-<main id="main" class="hidden fadein">
-
-  <h1>🤖 Contra IA</h1>
-
-  <label>Tu nombre:</label>
-  <input type="text" id="ia_name">
-
-  <label>Tu rol:</label>
-  <select id="ia_role">
-    <option value="fugitivo">Fugitivo</option>
-    <option value="perseguidor">Perseguidor</option>
-  </select>
-
-  <label>Nivel IA:</label>
-  <select id="ia_level">
-    <option value="facil">Fácil</option>
-    <option value="normal" selected>Normal</option>
-    <option value="dificil">Difícil</option>
-  </select>
-
-  <button id="startIA" class="btn green">Iniciar partida</button>
-  <button class="btn gray" onclick="location.href='index.html'">← Volver</button>
-
+<main class="app">
+  <div class="card">
+    <h2>🤖 Contra IA</h2>
+    <div class="row">
+      <input id="ia_name" class="input" placeholder="Tu nombre">
+      <select id="ia_role" class="input">
+         <option value="fugitivo">Fugitivo</option>
+         <option value="perseguidor">Perseguidor</option>
+      </select>
+      <select id="ia_level" class="input">
+         <option value="easy">Fácil</option>
+         <option value="normal" selected>Normal</option>
+         <option value="hard">Difícil</option>
+      </select>
+    </div>
+    <div class="row">
+      <button id="startIA" class="btn">Iniciar partida contra IA</button>
+      <a class="btn" href="index.html" style="background:#666">Volver</a>
+    </div>
+  </div>
 </main>
-
-<script src="logic.js"></script>
+<script>
+document.getElementById('startIA').addEventListener('click', () => {
+  const name = document.getElementById('ia_name').value || 'Jugador';
+  const role = document.getElementById('ia_role').value || 'fugitivo';
+  const level = document.getElementById('ia_level').value || 'normal';
+  // IA toma el otro rol
+  const iaRole = (role === 'fugitivo') ? 'perseguidor' : 'fugitivo';
+  const sala = {modo:'ia', jugadores:[ {nombre:name,rol:role,human:true}, {nombre:'IA',rol:iaRole,ai:true,level} ]};
+  sessionStorage.setItem('vch_room', JSON.stringify(sala));
+  window.location.href = 'sala.html';
+});
+</script>
 </body>
 </html>
