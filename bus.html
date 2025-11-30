@@ -1,4 +1,39 @@
-<div class="busPlantilla">
-  <h3>Bus {{NUM}} — Línea {{LINEA}}</h3>
-  <p>Próxima parada: {{NEXT}}</p>
-</div>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Bus</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<h2>🚌 Bus en marcha</h2>
+
+<div id="status"></div>
+
+<button id="timbre" class="btn">🔔 TIMBRE</button>
+
+<script>
+document.getElementById("timbre").onclick = () => {
+    parent.postMessage({ type: "timbre" }, "*");
+};
+
+window.addEventListener("message", ev => {
+    if (ev.data.type === "world_update") {
+        const buses = ev.data.buses;
+        const id = window.busId;
+        const b = buses[id];
+
+        if (!b) return;
+        document.getElementById("status").innerHTML =
+            `Próxima parada en ${b.eta} s`;
+    }
+
+    if (ev.data.type === "bajar") {
+        parent.postMessage({ type: "bajar" }, "*");
+    }
+});
+</script>
+
+</body>
+</html>
