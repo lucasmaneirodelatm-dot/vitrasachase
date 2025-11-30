@@ -1,48 +1,34 @@
-// Motor del mundo Vitrasa Chase (tiempo real)
 module.exports = function (io) {
+    const paradas = ["6940", "20198", "6620", "14264"];
 
-  // Estado dinámico del mundo
-  const buses = {
-    "C1-1": { line: "C1", currentStop: 6940, nextStop: 20198, eta: 30 },
-    "L11-1": { line: "L11", currentStop: 6620, nextStop: 14264, eta: 90 }
-  };
+    const buses = {
+        "C1-1": { id: "C1-1", linea: "C1", current: "6940", next: "20198", eta: 20, timbre: false },
+        "L11-1": { id: "L11-1", linea: "L11", current: "6620", next: "14264", eta: 30, timbre: false }
+    };
 
-  const paradas = {
-    "20": { name: "Praza América" },
-    "20198": { name: "Policarpo Sanz 26" },
-    "6620": { name: "Policarpo Sanz 40" },
-    "14264": { name: "Urzáiz - Príncipe" }
-  };
+    console.log("🌍 Motor del mundo cargado");
 
-  console.log("🌍 Motor del mundo iniciado");
+    setInterval(() => {
+        Object.values(buses).forEach(b => {
+            b.eta--;
 
-  // Se ejecuta cada 1 segundo
-  setInterval(() => {
+            if (b.eta <= 0) {
+                b.current = b.next;
 
-    Object.keys(buses).forEach(id => {
-      const b = buses[id];
+                const i = paradas.indexOf(b.current);
+                b.next = paradas[(i + 1) % paradas.length];
 
-      // Contar hacia abajo la ETA
-      b.eta -= 1;
+                b.eta = Math.floor(Math.random() * 40) + 15;
 
-      if (b.eta <= 0) {
-        // Bus llegó a la parada
-        b.currentStop = b.nextStop;
+                if (b.timbre) {
+                    b.timbre = false;
+                    io.emit("bajar", { bus: b.id, parada: b.current });
+                }
+            }
+        });
 
-        // Elegir nueva parada siguiente (ruta circular simulada)
-        const paradasOrden = Object.keys(paradas);
-        const pos = paradasOrden.indexOf(String(b.currentStop));
-        const siguienteIndex = (pos + 1) % paradasOrden.length;
+        io.emit("worldUpdate", buses);
+    }, 1000);
 
-        b.nextStop = paradasOrden[siguienteIndex];
-        b.eta = Math.floor(Math.random() * 50) + 20; // 20–70 segundos
-      }
-    });
-
-    // ENVIAR A TODAS LAS SALAS
-    io.emit("worldUpdate", { buses });
-
-  }, 1000);
-
-  return { buses, paradas };
+    return { buses, paradas };
 };
