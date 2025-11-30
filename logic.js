@@ -1,25 +1,62 @@
-// logic.js - index + helpers (no modificar para el loader)
-/* Loader: espera resourcesLoaded() y oculta el loader sin texto */
-function resourcesLoaded(){
-  // puede extenderse para audio/images. Por ahora: comprobamos que logo y gif existen en la red.
-  const img = document.getElementById('loader-img');
-  return img && img.complete;
-}
-function hideLoader(){
-  document.querySelectorAll('.loader').forEach(e=>e.classList.add('hidden'));
-  document.getElementById('main')?.classList.remove('hidden');
-}
-function waitForResourcesThenShow(){
-  const tryShow = () => {
-    if(resourcesLoaded()){
-      // small delay para que no parpadee
-      setTimeout(hideLoader, 80);
-    } else {
-      setTimeout(tryShow, 200);
-    }
-  };
-  tryShow();
-}
-document.addEventListener('DOMContentLoaded', ()=> {
-  waitForResourcesThenShow();
+document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => {
+        const ld = document.getElementById("loader");
+        const mn = document.getElementById("main");
+        if (ld) ld.style.display = "none";
+        if (mn) mn.classList.remove("hidden");
+    }, 500);
 });
+
+// Iniciar local
+const sl = document.getElementById("startLocal");
+if (sl) sl.onclick = () => {
+    const j1 = document.getElementById("j1").value || "Jugador 1";
+    const j2 = document.getElementById("j2").value || "Jugador 2";
+
+    localStorage.setItem("sala", JSON.stringify({
+        modo: "local",
+        j1, j2
+    }));
+
+    location.href = "sala.html";
+};
+
+// Iniciar IA
+const sia = document.getElementById("startIA");
+if (sia) sia.onclick = () => {
+    const nombre = document.getElementById("ia_name").value || "Jugador";
+    const rol = document.getElementById("ia_role").value;
+    const nivel = document.getElementById("ia_level").value;
+
+    localStorage.setItem("sala", JSON.stringify({
+        modo: "ia",
+        nombre, rol, nivel
+    }));
+
+    location.href = "sala.html";
+};
+
+// Sala
+if (location.pathname.endsWith("sala.html")) {
+    const socket = io();
+
+    const frame = document.getElementById("frame");
+
+    socket.on("worldUpdate", buses => {
+        frame.contentWindow.postMessage({ type: "world_update", buses }, "*");
+    });
+
+    socket.on("bajar", data => {
+        frame.src = "parada.html";
+    });
+
+    window.addEventListener("message", ev => {
+        if (ev.data.type === "coger") {
+            frame.src = "bus.html";
+        }
+
+        if (ev.data.type === "timbre") {
+            socket.emit("timbre", { busId: "C1-1" });
+        }
+    });
+}
