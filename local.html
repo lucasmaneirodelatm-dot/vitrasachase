@@ -1,31 +1,24 @@
-<!doctype html>
-<html lang="es">
-<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Vitrasa Chase — Local</title>
-<link rel="stylesheet" href="styles.css"></head>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>VITRASA CHASE - Local</title>
+<link rel="stylesheet" href="styles.css">
+</head>
 <body>
-<main class="app">
-  <div class="card">
-    <h2>🏠 Juego Local</h2>
-    <div class="row">
-      <input id="p1" class="input" placeholder="Nombre Jugador 1 (fugitivo)">
-      <input id="p2" class="input" placeholder="Nombre Jugador 2 (perseguidor)">
-    </div>
-    <div class="row">
-      <button id="startLocal" class="btn">Iniciar partida local</button>
-      <a class="btn" href="index.html" style="background:#666">Volver</a>
-    </div>
-    <p class="small">En local no se pregunta rol: Jugador 1 = fugitivo, Jugador 2 = perseguidor.</p>
-  </div>
+
+<main id="main">
+<h2>🏠 Juego Local</h2>
+
+<label>Jugador 1 (Fugitivo):</label>
+<input id="j1">
+
+<label>Jugador 2 (Perseguidor):</label>
+<input id="j2">
+
+<button id="startLocal" class="btn">Iniciar partida</button>
 </main>
-<script>
-document.getElementById('startLocal').addEventListener('click', ()=>{
-  const p1 = document.getElementById('p1').value || 'Fugitivo';
-  const p2 = document.getElementById('p2').value || 'Perseguidor';
-  const sala = {modo:'local', jugadores: [{nombre:p1,rol:'fugitivo'},{nombre:p2,rol:'perseguidor'}]};
-  // guardamos en sessionStorage y vamos a sala.html
-  sessionStorage.setItem('vch_room', JSON.stringify(sala));
-  window.location.href = 'sala.html';
-});
-</script>
+
+<script src="logic.js"></script>
 </body>
 </html>
