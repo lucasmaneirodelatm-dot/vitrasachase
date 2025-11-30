@@ -1,30 +1,28 @@
-// server.js
-const express = require('express');
-const path = require('path');
+const express = require("express");
 const app = express();
-const PORT = process.env.PORT || 3000;
+const http = require("http").createServer(app);
+const io = require("socket.io")(http, { cors: { origin: "*" } });
 
-app.use(express.static(path.join(__dirname, 'public')));
+// Archivos HTML y JS
+app.use(express.static("public"));
 
-// API: devolver paradas.json / buses.json (si no existen se devuelven ejemplos)
-app.get('/api/paradas', (req, res) => {
-  try {
-    res.sendFile(path.join(__dirname, 'data', 'paradas.json'));
-  } catch(e) {
-    res.json({});
-  }
-});
-app.get('/api/buses', (req, res) => {
-  try {
-    res.sendFile(path.join(__dirname, 'data', 'buses.json'));
-  } catch(e) {
-    res.json([]);
-  }
-});
+const engine = require("./world_engine")(io);
 
-// Página raíz
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+io.on("connection", socket => {
+    console.log("🟢 Usuario conectado");
+
+    socket.emit("worldUpdate", engine.buses);
+
+    socket.on("timbre", data => {
+        console.log("🔔 Timbre en bus:", data.busId);
+        engine.buses[data.busId].timbre = true;
+    });
+
+    socket.on("disconnect", () => {
+        console.log("🔴 Usuario desconectado");
+    });
 });
 
-app.listen(PORT, ()=> console.log(`Server listening http://localhost:${PORT}`));
+http.listen(3000, () =>
+    console.log("Servidor en http://localhost:3000")
+);
