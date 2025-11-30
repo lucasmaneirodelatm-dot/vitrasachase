@@ -1,5 +1,35 @@
-<div class="paradaPlantilla">
-  <h3>{{ID}} — {{NOMBRE}}</h3>
-  <p>Autobuses próximos:</p>
-  <div>{{LISTA_BUSES}}</div>
-</div>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Parada</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<h2>🚏 Parada actual</h2>
+
+<div id="busList"></div>
+
+<button id="walk" class="btn">🚶 Caminar a otra parada</button>
+
+<script>
+window.addEventListener("message", ev => {
+    if (ev.data.type === "world_update") {
+        const buses = ev.data.buses;
+        const list = document.getElementById("busList");
+        list.innerHTML = "";
+
+        Object.values(buses).forEach(b => {
+            if (b.current === "6940") {
+                list.innerHTML += `<div>🚌 ${b.linea} — ahora <button onclick="parent.postMessage({type:'coger',bus:'${b.id}'},'*')" class="btn">COGER</button></div>`;
+            } else {
+                list.innerHTML += `<div>🚌 ${b.linea} — ${b.eta} s</div>`;
+            }
+        });
+    }
+});
+</script>
+
+</body>
+</html>
