@@ -1,26 +1,37 @@
-/* styles.css - simple y más agradable */
-:root{
-  --bg:#0f1724; --card:#0b1b2b; --accent:#ff6b00; --muted:#9aa7b2; --text:#e6eef3;
+body {
+  font-family: Arial;
+  text-align: center;
+  background: #eef6ff;
+  margin: 0;
+  padding: 0;
 }
-*{box-sizing:border-box}
-body{margin:0;font-family:Inter,Arial,Helvetica,sans-serif;background:linear-gradient(180deg,#071021,#0b1730);color:var(--text);min-height:100vh}
-.app{max-width:920px;margin:40px auto;padding:20px;text-align:center}
-.logo{width:220px;margin:0 auto 12px;display:block}
-h1{margin:6px 0;font-size:30px;letter-spacing:1px}
-.subtitle{color:var(--muted);margin-bottom:18px}
-.menu{display:flex;flex-direction:column;gap:12px;align-items:center}
-.btn{display:inline-block;padding:14px 20px;border-radius:12px;background:linear-gradient(90deg,#1f8cff,var(--accent));color:#fff;text-decoration:none;font-weight:700;min-width:320px;text-align:center;box-shadow:0 6px 18px rgba(0,0,0,0.35)}
-.btn.disabled{opacity:0.5;pointer-events:none}
-.note{display:block;margin-top:14px;color:var(--muted)}
-/* Loader full screen */
-.loader{position:fixed;inset:0;background:#fff;display:flex;align-items:center;justify-content:center;z-index:9999}
-.loader img{width:220px;max-width:40%}
-.hidden{display:none}
-/* Sala / cards */
-.card{background:linear-gradient(180deg,#081726,#062033);padding:14px;border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,0.45)}
-.small{font-size:13px;color:var(--muted)}
-.row{display:flex;gap:10px;align-items:center;justify-content:center;margin:8px 0}
-.input{padding:8px;border-radius:8px;border:0;min-width:200px}
-.iframe-full{width:100%;height:520px;border-radius:8px;border:0;box-shadow:0 6px 20px rgba(0,0,0,0.35)}
-.bus{padding:8px;border-radius:8px;background:#062a3a;margin:8px 0}
-.log{max-height:120px;overflow:auto;text-align:left;font-size:12px;color:var(--muted);margin-top:10px;padding:8px}
+
+.btn {
+  display: block;
+  padding: 12px;
+  margin: 10px auto;
+  width: 260px;
+  background: #0078ff;
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.hidden { display: none; }
+
+#loader {
+  position: fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+iframe {
+  width:100%;
+  height:90vh;
+  border:none;
+}
