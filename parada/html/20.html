@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"/><meta name="viewport"content="width=device-width,initial-scale=1"/><title>Parada 20</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <div class="card">
+      <h3 id="paradaTitle">Rúa do Abade de Juan de Bastos(fronte Asociación Veciños)</h3>
+      <div id="busListArea"></div>
+
+      <div class="row">
+        <button id="walkBtn" class="btn" style="background:#2e7d32">Caminar a parada cercana</button>
+        <button id="backBtn" class="btn" style="background:#666">Volver a sala</button>
+      </div>
+
+      <div id="par_map" class="small">Mapa placeholder</div>
+      <div id="debug" class="log small"></div>
+    </div>
+  </div>
+
+<script>
+/*
+parada_template.html: - pide a la sala los datos de la parada (por id)
+- muestra lista de buses simulada y muestra "Coger" solo si eta === 'ahora'.
+- envía mensajes a la sala con postMessage.
+*/
+function q(name){ const u = new URL(location.href); return u.searchParams.get(name); }
+const paradaId = q('id') || '20';
+const dbg = document.getElementById('debug');
+function log(t){ const p=document.createElement('div'); p.textContent=new Date().toLocaleTimeString()+' — '+t; dbg.prepend(p); }
+window.addEventListener('message', (ev)=>{
+  const d = ev.data || {};
+  if(d.type === 'parada_data'){
+    renderParada(d.parada);
+  }
+  if(d.type === 'confirm_boarding'){
+    log('Sala confirmó: embarcado en ' + (d.bus || '??'));
+    // cuando sala confirma, pedir que cargue bus.html en la sala
+    parent.postMessage({type:'request_load_bus', bus: d.bus}, '*');
+  }
+});
+// pedir datos a la sala
+parent.postMessage({type:'request_get_parada', id:paradaId}, '*');
+
+function renderParada(p){
+  document.getElementById('paradaTitle').textContent = `Parada ${p.id} — ${p.name || p.nombre || ''}`;
+  // Simular lista de buses (se pueden pedir a /api/buses pero simplificamos)
+  const buses = [
+    {line:'17', number:6154, eta: Math.random()<0.35 ? 'ahora' : '2 min', type:'normal'},
+    {line:'L17', number:6211, eta: '4 min', type:'normal'}
+  ];
+  const area = document.getElementById('busListArea');
+  area.innerHTML = '<h4>Próximos autobuses</h4>';
+  buses.forEach(b=>{
+    const div = document.createElement('div');
+    div.className='bus';
+    div.innerHTML = `<strong>${b.line} (${b.number})</strong> — ${b.eta} ${b.type==='refuerzo' ? '<em>refuerzo</em>' : ''}`;
+    if(b.eta === 'ahora'){
+      const btn = document.createElement('button');
+      btn.textContent = 'Coger';
+      btn.className = 'btn';
+      btn.style.background = '#ff6b00';
+      btn.onclick = () => {
+        // Pedimos a la sala que confirme el embarque (ejemplo)
+        parent.postMessage({type:'request_bus_caught', player: 'local', bus: b}, '*');
+        log('Intentando coger bus ' + b.line);
+      };
+      div.appendChild(btn);
+    }
+    area.appendChild(div);
+  });
+
+  // map & players placeholder
+  document.getElementById('par_map').innerHTML = `<strong>Mapa</strong> — Parada coordenadas: ${p.coords || '42.187231, -8.741008'}<div class="small">Jugadores en esta parada: (sala mostrará la misma info)</div>`;
+}
+
+document.getElementById('walkBtn').addEventListener('click', ()=>{
+  // ejemplo: la sala decide a qué parada cercana vamos
+  parent.postMessage({type:'request_walk_nearby', from:paradaId}, '*');
+  log('Solicitado caminar a parada cercana (tú defines la lista luego).');
+});
+document.getElementById('backBtn').addEventListener('click', ()=> parent.postMessage({type:'request_back_to_room'}, '*'));
+</script>
+</body>
+</html>
