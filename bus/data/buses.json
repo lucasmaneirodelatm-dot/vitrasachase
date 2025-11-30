@@ -1,0 +1,4 @@
+[
+  { "id": "6800", "line": "17", "type":"estandar", "capacity":20, "frequency": 75, "routeTime": 1200 },
+  { "id": "6211", "line": "L11", "type":"estandar", "capacity":35, "frequency": 300, "routeTime": 2400 }
+]
