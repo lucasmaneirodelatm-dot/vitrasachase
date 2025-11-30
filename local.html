@@ -1,35 +1,31 @@
 <!doctype html>
 <html lang="es">
-<head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>VITRASA CHASE — LOCAL</title>
-<link rel="stylesheet" href="styles.css">
-</head>
-
+<head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Vitrasa Chase — Local</title>
+<link rel="stylesheet" href="styles.css"></head>
 <body>
-
-<div id="loader" class="loader">
-  <img src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/main/LoaderAvanza.gif">
-</div>
-
-<main id="main" class="hidden fadein">
-
-  <h1>🏠 Juego Local</h1>
-  <p>Ambos jugadores comparten pantalla.</p>
-
-  <label>Jugador 1 (Fugitivo):</label>
-  <input type="text" id="p1" placeholder="Nombre">
-
-  <label>Jugador 2 (Perseguidor):</label>
-  <input type="text" id="p2" placeholder="Nombre">
-
-  <button id="startLocal" class="btn green">Iniciar partida</button>
-
-  <button class="btn gray" onclick="location.href='index.html'">← Volver</button>
-
+<main class="app">
+  <div class="card">
+    <h2>🏠 Juego Local</h2>
+    <div class="row">
+      <input id="p1" class="input" placeholder="Nombre Jugador 1 (fugitivo)">
+      <input id="p2" class="input" placeholder="Nombre Jugador 2 (perseguidor)">
+    </div>
+    <div class="row">
+      <button id="startLocal" class="btn">Iniciar partida local</button>
+      <a class="btn" href="index.html" style="background:#666">Volver</a>
+    </div>
+    <p class="small">En local no se pregunta rol: Jugador 1 = fugitivo, Jugador 2 = perseguidor.</p>
+  </div>
 </main>
-
-<script src="logic.js"></script>
+<script>
+document.getElementById('startLocal').addEventListener('click', ()=>{
+  const p1 = document.getElementById('p1').value || 'Fugitivo';
+  const p2 = document.getElementById('p2').value || 'Perseguidor';
+  const sala = {modo:'local', jugadores: [{nombre:p1,rol:'fugitivo'},{nombre:p2,rol:'perseguidor'}]};
+  // guardamos en sessionStorage y vamos a sala.html
+  sessionStorage.setItem('vch_room', JSON.stringify(sala));
+  window.location.href = 'sala.html';
+});
+</script>
 </body>
 </html>
