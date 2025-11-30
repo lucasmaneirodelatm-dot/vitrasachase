@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"/><meta name="viewport"content="width=device-width,initial-scale=1"/><title>L17 - Bus  6800</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <div class="card">
+      <h3 id="busTitle">6800</h3>
+      <div id="nextStop" class="small">Próxima parada: —</div>
+      <div id="audioArea" class="small">Audio: (si hay)</div>
+      <div class="row">
+        <button id="timbreBtn" class="btn" style="background:#c62828">Timbre</button>
+        <button id="leaveBus" class="btn" style="background:#666">Salir al andén (bajar)</button>
+      </div>
+      <div id="busLog" class="log small"></div>
+    </div>
+  </div>
+
+<script>
+/* bus_template: recibe un bus en query param, simula paradas y reacciona al timbre.
+   Comunicación con parent via postMessage:
+   - parent puede enviar {type:'board', bus: {...}} para indicar que el jugador ha subido
+*/
+const busLog = document.getElementById('busLog');
+function log(t){ const p=document.createElement('div'); p.textContent=new Date().toLocaleTimeString() + ' — ' + t; busLog.prepend(p); }
+
+function q(name){ const u = new URL(location.href); return u.searchParams.get(name); }
+const busParam = q('bus') ? JSON.parse(decodeURIComponent(q('bus'))) : {line:'17', number:6800};
+
+document.getElementById('busTitle').textContent = `${busParam.line} — #${busParam.number}`;
+let stops = ['20','Parada B','20','Parada D'];
+let idx = 0;
+document.getElementById('nextStop').textContent = 'Próxima parada: ' + stops[idx];
+
+window.addEventListener('message', (ev)=>{
+  const d = ev.data || {};
+  if(d.type === 'board'){
+    log('Jugador embarcado: ' + (d.player||'--'));
+  }
+  if(d.type === 'request_stop'){
+    log('Solicitud de bajada recibida');
+    // confirmamos que el pasajero baja en la próxima parada
+    parent.postMessage({type:'passenger_will_get_off', bus:busParam, stop:stops[idx]}, '*');
+  }
+});
+
+// simulación de avance automático
+const iv = setInterval(()=>{
+  idx++;
+  if(idx >= stops.length){
+    log('Fin del recorrido');
+    clearInterval(iv);
+    parent.postMessage({type:'bus_finished', bus:busParam}, '*');
+    return;
+  }
+  document.getElementById('nextStop').textContent = 'Próxima parada: ' + stops[idx];
+  // reproducir audio (si se dispone, la sala puede pedir al servidor)
+  parent.postMessage({type:'bus_next_stop', bus:busParam, next:stops[idx]}, '*');
+}, 7000); // cada 7s ejemplo
+
+document.getElementById('timbreBtn').addEventListener('click', ()=>{
+  log('Timbre pulsado por pasajero');
+  parent.postMessage({type:'timbre_pressed', bus:busParam}, '*');
+  // marcar para bajar en la próxima
+});
+
+document.getElementById('leaveBus').addEventListener('click', ()=>{
+  parent.postMessage({type:'request_leave_bus', bus:busParam}, '*');
+});
+</script>
+</body>
+</html>
