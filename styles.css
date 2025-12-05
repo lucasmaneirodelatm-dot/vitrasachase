@@ -1,37 +1,25 @@
 body {
-  font-family: Arial;
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
+  padding: 20px;
   text-align: center;
-  background: #eef6ff;
-  margin: 0;
-  padding: 0;
 }
 
 .btn {
-  display: block;
-  padding: 12px;
-  margin: 10px auto;
-  width: 260px;
-  background: #0078ff;
+  background: #0077cc;
   color: white;
-  border-radius: 8px;
-  text-decoration: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  display: inline-block;
+  margin: 10px;
   cursor: pointer;
 }
 
-.hidden { display: none; }
-
-#loader {
-  position: fixed;
-  top:0;left:0;
-  width:100%;height:100%;
-  background:#fff;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
-
-iframe {
-  width:100%;
-  height:90vh;
-  border:none;
+.busCard {
+  background: white;
+  border-radius: 12px;
+  padding: 10px;
+  margin: 10px auto;
+  width: 260px;
+  box-shadow: 0 0 4px rgba(0,0,0,0.2);
 }
