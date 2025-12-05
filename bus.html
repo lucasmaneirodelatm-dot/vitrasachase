@@ -1,39 +1,48 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <title>Bus</title>
 <link rel="stylesheet" href="styles.css">
+<script src="datos.js"></script>
 </head>
 <body>
 
-<h2>🚌 Bus en marcha</h2>
+<h1>🚌 Dentro del Bus</h1>
+<div id="datos"></div>
 
-<div id="status"></div>
-
-<button id="timbre" class="btn">🔔 TIMBRE</button>
+<button class="btn" onclick="tocarTimbre()">🔔 Tocar timbre</button>
 
 <script>
-document.getElementById("timbre").onclick = () => {
-    parent.postMessage({ type: "timbre" }, "*");
-};
+const p = new URLSearchParams(window.location.search);
+const busId = p.get("id");
+const bus = BUSES[busId];
 
-window.addEventListener("message", ev => {
-    if (ev.data.type === "world_update") {
-        const buses = ev.data.buses;
-        const id = window.busId;
-        const b = buses[id];
+// reloj interno
+setInterval(() => {
+  reloj++;
+  actualizar();
+}, 1000);
 
-        if (!b) return;
-        document.getElementById("status").innerHTML =
-            `Próxima parada en ${b.eta} s`;
-    }
+function actualizar(){
+  const parada = paradaActual(bus, reloj);
+  document.getElementById("datos").innerHTML = `
+    <h2>Línea ${bus.linea}</h2>
+    <p>Hora virtual: ${reloj}</p>
+    <p>Próxima parada: ${parada}</p>
+    <p>Hoja de ruta:</p>
+    <ul>
+      ${bus.ruta.map(r => `<li>${r}</li>`).join("")}
+    </ul>
+  `;
+}
 
-    if (ev.data.type === "bajar") {
-        parent.postMessage({ type: "bajar" }, "*");
-    }
-});
+function tocarTimbre(){
+  const destino = paradaActual(bus, reloj + 1);
+  location.href = "parada.html?id=" + destino;
+}
+
+actualizar();
 </script>
-
 </body>
 </html>
