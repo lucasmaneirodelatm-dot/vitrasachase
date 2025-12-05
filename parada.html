@@ -1,35 +1,60 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <title>Parada</title>
 <link rel="stylesheet" href="styles.css">
+<script src="datos.js"></script>
 </head>
 <body>
 
-<h2>🚏 Parada actual</h2>
+<h1>🚏 Parada</h1>
 
-<div id="busList"></div>
-
-<button id="walk" class="btn">🚶 Caminar a otra parada</button>
+<div id="info"></div>
+<div id="buses"></div>
 
 <script>
-window.addEventListener("message", ev => {
-    if (ev.data.type === "world_update") {
-        const buses = ev.data.buses;
-        const list = document.getElementById("busList");
-        list.innerHTML = "";
+const p = new URLSearchParams(window.location.search);
+const paradaId = p.get("id") || "6620";
 
-        Object.values(buses).forEach(b => {
-            if (b.current === "6940") {
-                list.innerHTML += `<div>🚌 ${b.linea} — ahora <button onclick="parent.postMessage({type:'coger',bus:'${b.id}'},'*')" class="btn">COGER</button></div>`;
-            } else {
-                list.innerHTML += `<div>🚌 ${b.linea} — ${b.eta} s</div>`;
-            }
-        });
-    }
-});
+// Reloj interno
+setInterval(() => {
+  reloj++;
+  actualizar();
+}, 1000);
+
+function actualizar(){
+  document.getElementById("info").innerHTML =
+    `<h2>Parada ${paradaId}</h2><p>Hora virtual: ${reloj}</p>`;
+
+  let html = "";
+
+  for (const id in BUSES){
+    const bus = BUSES[id];
+    const t = eta(bus, paradaId, reloj);
+
+    if (t === null) continue;
+
+    html += `
+      <div class="busCard">
+        🚌 Línea ${bus.linea}
+        <br>⏳ Llega en: ${t} min
+        ${t === 0 ? 
+          `<button class='btn' onclick='coger("${id}")'>COGER</button>` :
+          `<small>Esperando...</small>`
+        }
+      </div>
+    `;
+  }
+
+  document.getElementById("buses").innerHTML = html;
+}
+
+function coger(busId){
+  location.href = "bus.html?id=" + busId;
+}
+
+actualizar();
 </script>
-
 </body>
 </html>
