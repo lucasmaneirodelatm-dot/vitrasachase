@@ -8,17 +8,52 @@ let reloj = 0; // en minutos virtuales desde el inicio
 
 // BUSES DEFINIDOS
 const BUSES = {
-  "BUS1": {
-    id: "BUS1",
-    linea: "C1",
-    ruta: ["6620", "20198", "14264", "14121", "8820", "20194"], // paradas en orden
+  "BUS6200": {
+    id: "BUS200",
+    linea: "24",
+    ruta: ["20057", "430", "6860", "14121", "20198", "6620", "14264", "8820", "8840", "7000", "8610", "5810", "5820", "710", "910", "2930", "2870", "2880", "2910", "6740", "14385", "14386", "14387", "2920", "840", "5800", "5830", "20022", "20023", "8750", "8770", "5540", "20091", "20057"], // paradas en orden
     frecuencia: 10, // minutos
     inicio: 0 // empieza a las 00:00 virtuales
   },
-  "BUS2": {
-    id: "BUS2",
+  "BUS6210": {
+    id: "BUS210",
     linea: "L11",
-    ruta: ["5000", "5001", "5002", "5003"],
+    ruta: ["00"],
+    frecuencia: 12,
+    inicio: 3
+  },
+  "BUS6225": {
+    id: "BUS225",
+    linea: "c3",
+    ruta: ["00"],
+    frecuencia: 12,
+    inicio: 3
+  },
+  "BUS6235": {
+    id: "BUS235",
+    linea: "L15a",
+    ruta: ["00"],
+    frecuencia: 12,
+    inicio: 3
+  },
+  "BUS6800": {
+    id: "BUS800",
+    linea: "L4A",
+    ruta: ["00"],
+    frecuencia: 12,
+    inicio: 3
+  },
+  "BUS6823": {
+    id: "BUS823",
+    linea: "L12B",
+    ruta: ["00"],
+    frecuencia: 12,
+    inicio: 3
+  },
+  "BUS6950": {
+    id: "BUS950",
+    linea: "C1",
+    ruta: ["00"],
     frecuencia: 12,
     inicio: 3
   }
