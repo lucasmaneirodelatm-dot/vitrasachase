@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Bus</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+
+<h2>🚌 Bus</h2>
+
+<div id="info"></div>
+<button id="timbre" class="btn">🔔 TIMBRAR</button>
+
+<script>
+window.busId = null;
+
+document.getElementById("timbre").onclick = () => {
+    parent.postMessage({ type: "timbreBus", bus: window.busId }, "*");
+};
+
+window.addEventListener("message", ev => {
+    if (ev.data.type === "worldUpdate"){
+        const { buses } = ev.data.data;
+        const b = buses[window.busId];
+        if (!b) return;
+
+        document.getElementById("info").innerHTML =
+            `Próxima parada: ${b.next} en ${b.eta}s`;
+    }
+});
+</script>
+
+</body>
+</html>
