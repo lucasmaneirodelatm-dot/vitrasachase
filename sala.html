@@ -1,3 +1,6 @@
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"/><meta name="viewport"content="width=device-width,initial-scale=1"/><title>Sala — Vitrasa Chase</title>
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,11 +10,34 @@
 <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
+<main class="app">
+  <div class="card">
+    <h2 id="roomTitle">VITRASA CHASE — Sala</h2>
+    <div class="row">
+      <div>
+        <div class="small">Modo: <span id="mode">—</span></div>
+        <div class="small">Jugadores: <span id="players">—</span></div>
+      </div>
+    </div>
 
+    <div class="row">
+      <!-- iframe donde cargamos parada.html o bus.html -->
+      <iframe id="remoteFrame" class="iframe-full" src=""></iframe>
+    </div>
 <div id="content">
     <iframe id="frame" src="parada.html"></iframe>
 </div>
 
+    <div class="row">
+      <button id="randomParada" class="btn" style="background:#1976d2">Ir a parada aleatoria</button>
+      <button id="leave" class="btn" style="background:#666">Salir</button>
+    </div>
+
+    <div id="log" class="log small"></div>
+  </div>
+</main>
+
+<script src="sala_logic.js"></script>
 <script src="logic.js"></script>
 </body>
 </html>
