@@ -15,10 +15,16 @@
 
 <script>
 const p = new URLSearchParams(window.location.search);
-const busId = p.get("id");
+const busId = Number(p.get("id"));
 const bus = BUSES[busId];
 
-// reloj interno
+let reloj = 0;
+
+if (!bus) {
+  document.getElementById("datos").textContent = "Bus no encontrado";
+  throw new Error("Bus no encontrado");
+}
+
 setInterval(() => {
   reloj++;
   actualizar();
