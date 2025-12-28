@@ -94,7 +94,7 @@ const BUSES = {
   },
   "BUS6210": {
     id: "BUS210",
-    linea: "L11",", 
+    linea: "L11", 
     ruta: ["00"],
     frecuencia: 12,
     inicio: 3
