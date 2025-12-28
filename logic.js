@@ -11,7 +11,7 @@ socket.on("worldUpdate", data => {
 socket.on("descenso", data => {
     const visor = document.getElementById("visor");
     if (visor) {
-        visor.src = "pages/parada.html?parada=" + data.parada;
+        visor.src = "parada.html?parada=" + data.parada;
     }
 });
 
