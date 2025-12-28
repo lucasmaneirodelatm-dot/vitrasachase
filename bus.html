@@ -14,16 +14,12 @@
 <button class="btn" onclick="tocarTimbre()">🔔 Tocar timbre</button>
 
 <script>
-/* ===== AUDIO ===== */
-const sonidoTimbre = new Audio("audio/timbre.mp3");
-sonidoTimbre.preload = "auto";
-
-/* ===== LÓGICA ===== */
 const p = new URLSearchParams(window.location.search);
 const busId = p.get("id");
 const bus = BUSES[busId];
 
-let reloj = 0;
+let relojLocal = 0;
+let ultimaParada = null;
 
 if (!bus) {
   document.getElementById("datos").textContent = "Bus no encontrado";
@@ -31,15 +27,35 @@ if (!bus) {
 }
 
 setInterval(() => {
-  reloj++;
+  relojLocal++;
   actualizar();
 }, 1000);
 
+function reproducirProximaParada(paradaId){
+  const a1 = new Audio("audio/locuciones/locucion.mp3");
+  const a2 = new Audio("audio/locuciones/prox-parada.mp3");
+  const a3 = new Audio(`audio/paradas/${paradaId}.mp3`);
+
+  a1.play().catch(() => {});
+  a1.onended = () => {
+    a2.play().catch(() => {});
+    a2.onended = () => {
+      a3.play().catch(() => {});
+    };
+  };
+}
+
 function actualizar(){
-  const parada = paradaActual(bus, reloj);
+  const parada = paradaActual(bus, relojLocal);
+
+  if (parada && parada !== ultimaParada){
+    reproducirProximaParada(parada);
+    ultimaParada = parada;
+  }
+
   document.getElementById("datos").innerHTML = `
     <h2>Línea ${bus.linea}</h2>
-    <p>Hora virtual: ${reloj}</p>
+    <p>Hora virtual: ${relojLocal}</p>
     <p>Próxima parada: ${parada}</p>
     <p>Hoja de ruta:</p>
     <ul>
@@ -49,14 +65,8 @@ function actualizar(){
 }
 
 function tocarTimbre(){
-  sonidoTimbre.currentTime = 0;
-  sonidoTimbre.play();
-
-  const destino = paradaActual(bus, reloj + 1);
-
-  setTimeout(() => {
-    location.href = "parada.html?id=" + destino;
-  }, 500);
+  const destino = paradaActual(bus, relojLocal + 1);
+  location.href = "parada.html?id=" + destino;
 }
 
 actualizar();
