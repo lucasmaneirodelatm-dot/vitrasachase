@@ -17,11 +17,15 @@
 const p = new URLSearchParams(window.location.search);
 const paradaId = p.get("id") || "6620";
 
-// Reloj interno
+// reloj global (de datos.js)
 setInterval(() => {
   reloj++;
   actualizar();
 }, 1000);
+
+function normalizarLinea(linea){
+  return linea.toLowerCase();
+}
 
 function actualizar(){
   document.getElementById("info").innerHTML =
@@ -32,16 +36,15 @@ function actualizar(){
   for (const id in BUSES){
     const bus = BUSES[id];
     const t = eta(bus, paradaId, reloj);
-
     if (t === null) continue;
 
     html += `
       <div class="busCard">
         🚌 Línea ${bus.linea}
         <br>⏳ Llega en: ${t} min
-        ${t === 0 ? 
-          `<button class='btn' onclick='coger("${id}")'>COGER</button>` :
-          `<small>Esperando...</small>`
+        ${t === 0
+          ? `<button class="btn" onclick="coger('${id}')">COGER</button>`
+          : `<small>Esperando...</small>`
         }
       </div>
     `;
@@ -51,10 +54,5 @@ function actualizar(){
 }
 
 function coger(busId){
-  location.href = "bus.html?id=" + busId;
-}
-
-actualizar();
-</script>
-</body>
-</html>
+  const bus = BUSES[busId];
+  const linea
