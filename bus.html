@@ -14,8 +14,13 @@
 <button class="btn" onclick="tocarTimbre()">🔔 Tocar timbre</button>
 
 <script>
+/* ===== AUDIO ===== */
+const sonidoTimbre = new Audio("audio/timbre.mp3");
+sonidoTimbre.preload = "auto";
+
+/* ===== LÓGICA ===== */
 const p = new URLSearchParams(window.location.search);
-const busId = Number(p.get("id"));
+const busId = p.get("id");
 const bus = BUSES[busId];
 
 let reloj = 0;
@@ -44,8 +49,14 @@ function actualizar(){
 }
 
 function tocarTimbre(){
+  sonidoTimbre.currentTime = 0;
+  sonidoTimbre.play();
+
   const destino = paradaActual(bus, reloj + 1);
-  location.href = "parada.html?id=" + destino;
+
+  setTimeout(() => {
+    location.href = "parada.html?id=" + destino;
+  }, 500);
 }
 
 actualizar();
