@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>VITRASA CHASE</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<div id="menu">
+
+<header class="menuHeader">
+    <h1>VITRASA CHASE</h1>
+    <p>Persecución en la red real de Vitrasa</p>
+</header>
+
+<section class="menuSection">
+    <h2>Modo de juego</h2>
+
+    <div class="mode" data-mode="local">
+        <h3>Juego Local</h3>
+        <p>Dos jugadores en el mismo dispositivo</p>
+        <button onclick="selectMode('local')">Jugar</button>
+    </div>
+
+    <div class="mode" data-mode="ia">
+        <h3>Contra IA</h3>
+        <p>Persigue o huye del sistema</p>
+        <button onclick="selectMode('ia')">Jugar</button>
+    </div>
+
+    <div class="mode" data-mode="online">
+        <h3>Online</h3>
+        <p>Crear o unirse a una sala</p>
+        <button onclick="selectMode('online')">Jugar</button>
+    </div>
+</section>
+
+<section id="onlineOptions" class="hidden">
+    <h2>Online</h2>
+
+    <div class="onlineBlock">
+        <button onclick="createRoom()">Crear sala</button>
+        <div id="createdRoom"></div>
+    </div>
+
+    <div class="onlineBlock">
+        <input id="roomInput" placeholder="Código de sala">
+        <button onclick="joinRoom()">Unirse</button>
+    </div>
+</section>
+
+<footer class="menuFooter">
+    <p>Simulación inspirada en vitrasa.es</p>
+</footer>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+let selectedMode = null;
+const onlineSection = document.getElementById("onlineOptions");
+const createdRoom = document.getElementById("createdRoom");
+
+function selectMode(mode) {
+    selectedMode = mode;
+
+    if (mode === "online") {
+        onlineSection.classList.remove("hidden");
+    } else {
+        sessionStorage.setItem("mode", mode);
+        window.location.href = "game.html";
+    }
+}
+
+const socket = io();
+
+function createRoom() {
+    socket.emit("createRoom", "online");
+}
+
+function joinRoom() {
+    const code = document.getElementById("roomInput").value.trim();
+    if (!code) return;
+    socket.emit("joinRoom", code);
+}
+
+socket.on("roomCreated", id => {
+    createdRoom.textContent = "Sala creada: " + id;
+    sessionStorage.setItem("room", id);
+});
+
+socket.on("gameStart", data => {
+    sessionStorage.setItem("mode", "online");
+    sessionStorage.setItem("role", "perseguidor");
+    window.location.href = "game.html";
+});
+</script>
+
+</body>
+</html>
