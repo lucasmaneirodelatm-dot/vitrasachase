@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>VITRASA CHASE</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<!-- ================= LOADER ================= -->
+<div id="loader">
+    <img src="assets/loaderavanza.gif" alt="Cargando">
+</div>
+
+<!-- ================= GAME ================= -->
+<div id="game" class="hidden">
+
+    <header>
+        <h1>VITRASA CHASE</h1>
+        <div id="worldTime">00:00</div>
+    </header>
+
+    <!-- ================= LOCAL MODE DUPLICATED ================= -->
+    <section id="localContainer">
+
+        <div class="playerPanel" id="playerA">
+            <h2>Jugador A</h2>
+
+            <div class="paradaPanel">
+                <h3>Parada</h3>
+                <div class="paradaNombre" id="paradaA">---</div>
+                <ul class="lineas" id="lineasA"></ul>
+            </div>
+
+            <div class="busesPanel">
+                <h3>Buses</h3>
+                <ul id="busesA"></ul>
+            </div>
+
+            <div class="controls">
+                <button id="moveA">Mover</button>
+                <button id="takeBusA">Coger</button>
+                <button id="leaveBusA">Bajar</button>
+            </div>
+        </div>
+
+        <div class="playerPanel" id="playerB">
+            <h2>Jugador B</h2>
+
+            <div class="paradaPanel">
+                <h3>Parada</h3>
+                <div class="paradaNombre" id="paradaB">---</div>
+                <ul class="lineas" id="lineasB"></ul>
+            </div>
+
+            <div class="busesPanel">
+                <h3>Buses</h3>
+                <ul id="busesB"></ul>
+            </div>
+
+            <div class="controls">
+                <button id="moveB">Mover</button>
+                <button id="takeBusB">Coger</button>
+                <button id="leaveBusB">Bajar</button>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- ================= MAP ================= -->
+    <section id="map">
+        <div class="mapPlaceholder">
+            MAPA (placeholder)
+        </div>
+    </section>
+
+    <!-- ================= STATUS ================= -->
+    <section id="status">
+        <div id="role">---</div>
+        <div id="state">---</div>
+    </section>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="game.js"></script>
+
+</body>
+</html>
