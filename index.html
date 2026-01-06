@@ -2028,16 +2028,111 @@
         // Datos del juego - Calles y plazas de Vigo
         const neighborhoods = [
             // Centro histórico y comercial
-            '.',
+    "Rúa do Abade de Juan de Bastos(fronte Asociación Veciños)",
+    "Rúa do Abade Juan de Bastos (cruce Baixada da Moo)",
+    "Rúa do Abade Juan de Bastos, 24",
+    "Rúa da Lagoa (cruce Camiño do Casmarcelo)",
+    "Rúa da Lagoa, 46",
+    "Aeroporto de Peinador",
+    "Avda. do Alcalde Lavadores, 125",
+    "Avda. do Alcalde Lavadores, 171",
+    "Avda. do Alcalde Lavadores, 8",
+    "Avda. do Alcalde Lavadores, 102",
+    "Avda. do Alcalde Lavadores, 29",
+    "Avda. do Alcalde Lavadores, 48",
+    "Avda. do Alcalde Lavadores, 67",
+    "Avda. do Alcalde Lavadores, 152",
+    "Estrada de Valadares, 451",
+    "Rúa de Ángel de Lema, 58",
+    "Rúa de Ángel de Lema, 247",
+    "Rúa de Ángel de Lema, 100",
+    "Rúa de Ángel de Lema, 140",
+    "Rúa de Ángel de Lema, 163",
+    "Rúa de Ángel de Lema, 14",
+    "Rúa de Ángel de Lema, 19",
+    "Rúa de Ángel de Lema, 221",
+    "Rúa de Ángel de Lema, 91",
+    "Rúa de Desiderio Pernas Arquitecto, 1",
+    "Rúa do Arquitecto Antonio Cominges, 38",
+    "Rúa do Arquitecto Gómez Román, 37",
+    "Rúa do Arquitecto Antonio Cominges, 4",
+    "Rúa do Arquitecto Antonio Cominges, 70",
+    "Rúa do Arquitecto Antonio Cominges, 90",
+    "Rúa de Aragón, 116",
+    "Rúa de Aragón, 162",
+    "Rúa de Aragón, 193",
+    "Rúa de Aragón, 212",
+    "Rúa de Aragón, 221",
+    "Rúa de Aragón, 26",
+    "Rúa de Aragón, 91",
+    "Rúa de Aragón, 82",
+    "Rúa de Aragón, 147",
+    "Rúa do Areal (Aduana)",
+    "Avda. de Ricardo Mella (Estación Coruxo)",
+    "Avda. de Ricardo Mella (fronte 223)",
+    "Avda. de Ricardo Mella, 518",
+    "Avda. de Ricardo Mella, 250",
+    "Avda. de Ricardo Mella, 135",
+    "Avda. de Ricardo Mella, 273",
+    "Avda. de Ricardo Mella, 165",
+    "Avda. de Ricardo Mella, 223",
+    "Avda. de Ricardo Mella, 289",
+    "Avda. do Alcalde Portanet, 34",
+    "Avda. do Aeroporto (Aeroclub)",
+    "Avda. do Aeroporto, 656",
+    "Avda. do Aeroporto (Colexio)",
+    "Rúa de Aragón (Instituto)",
+    "Avda. do Aeroporto, 215",
+    "Avda. do Aeroporto, 130",
+    "Avda. do Aeroporto, 181",
+    "Avda. do Aeroporto, 184",
+    "Avda. do Aeroporto, 240",
+    "Avda. do Aeroporto, 273",
+    "Avda. do Aeroporto, 298",
+    "Avda. do Aeroporto, 325",
+    "Avda. do Aeroporto, 328",
+    "Avda. do Aeroporto, 350",
+    "Avda. do Aeroporto, 377",
+    "Avda. do Aeroporto, 378",
+    "Avda. do Aeroporto, 43",
+    "Avda. do Aeroporto, 423",
+    "Avda. do Aeroporto, 446",
+    "Avda. do Aeroporto, 447",
+    "Avda. do Aeroporto, 484",
+    "Avda. do Aeroporto, 491",
+    "Avda. do Aeroporto, 531",
+    "Avda. do Aeroporto, 54",
+    "Avda. do Aeroporto (cruce Camiño das Cereixeiras)",
+    "Avda. do Aeroporto, 570",
+    "Avda. do Aeroporto, 605",
+    "Avda. do Aeroporto, 614",
+    "Avda. do Aeroporto, 686",
+    "Avda. do Aeroporto, 91",
+    "Avda. da Atlántida, 99",
+    "Avda. da Atlántida (fronte 148)",
+    "Avda. da Atlántida, 109",
+    "Avda. da Atlántida, 136",
+    "Avda. da Atlántida, 150",
+    "Avda. da Atlántida, 25",
+    "Avda. da Atlántida, 32",
+    "Avda. da Atlántida, 71",
+    "Avda. da Atlántida, 84",
+    "Avda. da Atlántida, 114",
+    "Praza Ribeira do Berbés",
+    "Avda. de Beiramar (fronte Casa do Mar)",
+    "Avda. de Beiramar (Peiraos auxiliares)",
+    "Avda. de Beiramar (Freire)",
+    "Rúa da Ribeira do Berbés",
+    "Avda. de Beiramar (Sto. Domingo)",
             
             // Barrios y zonas
-            '.',
+            ,
             
             // Centros importantes
-            '.',
+            ,
             
             // Alamedas y paseos
-            '.'
+            
         ];
 
         // Generar líneas de bus dinámicamente
@@ -2048,22 +2143,25 @@
             lines.push({
                 id: 'C1',
                 name: 'C1 - Centro Circular',
-                route: ['Plaza de España', 'Rúa Urzáiz', 'Plaza de Compostela', 'Rúa García Barbón', 'Plaza del Rey', 'Plaza de España'],
+                route: [''],
                 circular: true
+            },
+            {
+                id: 'A',
+                name: 'UNIVERSIDADE - AEROPORTO PEINADOR',
+                route: ["Rúa da Ribeira do Berbés", "Rúa de Aragón (Instituto)", "Avda. do Aeroporto, 54", "Avda. do Aeroporto, 130", "Avda. do Aeroporto, 184", "Avda. do Aeroporto, 240", "Avda. do Aeroporto, 298", "Avda. do Aeroporto, 328", "Avda. do Aeroporto, 350", "Avda. do Aeroporto, 378", "Avda. do Aeroporto, 446", "Avda. do Aeroporto, 484", "Avda. do Aeroporto, 570", "Avda. do Aeroporto, 614", "Avda. do Aeroporto, 656", "Avda. do Aeroporto, 686", "Avda. do Aeroporto (Colexio)", "Aeroporto de Peinador", "Avda. do Aeroporto (Aeroclub)", "Avda. do Aeroporto, 605", "Avda. do Aeroporto (cruce Camiño das Cereixeiras)", "Avda. do Aeroporto, 531", "Avda. do Aeroporto, 491", "Avda. do Aeroporto, 447", "Avda. do Aeroporto, 423", "Avda. do Aeroporto, 377", "Avda. do Aeroporto, 325", "Avda. do Aeroporto, 273", "Avda. do Aeroporto, 215", "Avda. do Aeroporto, 181", "Avda. do Aeroporto, 91", "Avda. do Aeroporto, 43"],
+                circular: false
+            },
+            {
+                id: 'L10',
+                name: 'SAIÁNS/CANIDO - CEMITERIO TEIS',
+                route: ["Avda. de Ricardo Mella, 289", "Avda. de Ricardo Mella, 273", "Rúa do Arquitecto Antonio Cominges, 4", "Rúa do Arquitecto Antonio Cominges, 38", "Rúa do Arquitecto Antonio Cominges, 70", "Rúa do Arquitecto Antonio Cominges, 90", "Rúa de Desiderio Pernas Arquitecto, 1", "Rúa do Arquitecto Gómez Román, 37", "Avda. da Atlántida (fronte 148)", "Avda. da Atlántida, 109", "Avda. da Atlántida, 99", "Avda. da Atlántida, 71", "Avda. da Atlántida, 25", "Rúa da Ribeira do Berbés", "Rúa de Ángel de Lema, 14", "Rúa de Ángel de Lema, 58", "Rúa de Ángel de Lema, 100", "Rúa de Ángel de Lema, 140", "Rúa de Ángel de Lema, 247", "Rúa de Ángel de Lema, 221", "Rúa de Ángel de Lema, 163", "Rúa de Ángel de Lema, 91", "Rúa de Ángel de Lema, 19", "Avda. da Atlántida, 32", "Avda. da Atlántida, 84", "Avda. da Atlántida, 114", "Avda. da Atlántida, 136", "Avda. da Atlántida, 150", "Avda. de Ricardo Mella, 518"],
+                circular: false
             });
             
             // Líneas principales a barrios
             const mainRoutes = [
-                { id: '4A', name: '4A - Teis ↔ Centro', start: 'Teis', end: 'Plaza de España' },
-                { id: '5A', name: '5A - Castrelos ↔ Centro', start: 'Castrelos', end: 'Plaza de España' },
-                { id: '6', name: '6 - Samil ↔ Centro', start: 'Samil', end: 'Plaza de España' },
-                { id: '7', name: '7 - Alcabre ↔ Centro', start: 'Alcabre', end: 'Plaza de España' },
-                { id: '8', name: '8 - Matamá ↔ Centro', start: 'Matamá', end: 'Plaza de España' },
-                { id: '9A', name: '9A - Saiáns ↔ Centro', start: 'Saiáns', end: 'Plaza de España' },
-                { id: '10', name: '10 - Lavadores ↔ Centro', start: 'Lavadores', end: 'Plaza de España' },
-                { id: '11', name: '11 - Candeán ↔ Centro', start: 'Candeán', end: 'Plaza de España' },
-                { id: '15A', name: '15A - Hospital ↔ Centro', start: 'Hospital Álvaro Cunqueiro', end: 'Plaza de España' },
-                { id: '16', name: '16 - Universidad ↔ Centro', start: 'Universidad de Vigo', end: 'Plaza de España' }
+                
             ];
             
             mainRoutes.forEach(route => {
