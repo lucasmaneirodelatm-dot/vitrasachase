@@ -31,7 +31,7 @@ function actualizar(){
   document.getElementById("datos").innerHTML = `
     <h2>Línea ${bus.linea}</h2>
     <p>Hora virtual: ${reloj}</p>
-    <p>Próxima parada: ${parada}</p>
+    <p>Próxima parada: ${nombreParada(nextStop)}</p>
     <p>Hoja de ruta:</p>
     <ul>
       ${bus.ruta.map(r => `<li>${r}</li>`).join("")}
