@@ -15,6 +15,23 @@
 <button class="btn" onclick="tocarTimbre()">🔔 Tocar timbre</button>
 
 <script>
+
+const PARADAS = {
+  "3810": "Avda. de Castrelos (Parque)",
+  "7870": "Saiáns",
+  "2340": "Canido",
+  "2350": "Avda. Europa",
+  "2370": "Castrelos",
+  "2310": "Pavillón",
+  "650": "Praza de América",
+  "600": "Gran Vía"
+  // luego lo ampliarás
+};
+
+function nombreParada(id){
+  return PARADAS[id] || `Parada ${id}`;
+}
+
   
 const p = new URLSearchParams(window.location.search);
 const busId = p.get("id");
@@ -24,17 +41,22 @@ const bus = BUSES[busId];
 setInterval(() => {
   reloj++;
   actualizar();
+const parada = paradaActual(bus, reloj);
+const nextStop = paradaActual(bus, reloj + 1);
+
 }, 1000);
 
 function actualizar(){
   const parada = paradaActual(bus, reloj);
+  const nextStop = paradaActual(bus, reloj + 1);
+
   document.getElementById("datos").innerHTML = `
     <h2>Línea ${bus.linea}</h2>
     <p>Hora virtual: ${reloj}</p>
     <p>Próxima parada: ${nombreParada(nextStop)}</p>
     <p>Hoja de ruta:</p>
     <ul>
-      ${bus.ruta.map(r => `<li>${r}</li>`).join("")}
+      ${bus.ruta.map(r => `<li>${nombreParada(r)}</li>`).join("")}
     </ul>
   `;
 }
