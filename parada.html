@@ -18,10 +18,16 @@ const p = new URLSearchParams(window.location.search);
 const paradaId = p.get("id") || "6620";
 
 // Reloj interno
+let reloj = localStorage.getItem("worldTime")
+  ? parseInt(localStorage.getItem("worldTime"))
+  : 6 * 60;
+
 setInterval(() => {
   reloj++;
+  localStorage.setItem("worldTime", reloj);
   actualizar();
 }, 1000);
+
 
 function actualizar(){
   document.getElementById("info").innerHTML =
