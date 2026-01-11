@@ -14,7 +14,7 @@
   const raw = sessionStorage.getItem('vch_room');
   if(!raw){
     alert('No hay sala activa. Volviendo al menú.');
-    window.location.href = 'index.html';
+    window.location.href = 'index-nuevo.html';
     return;
   }
   const sala = JSON.parse(raw);
