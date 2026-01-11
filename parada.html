@@ -31,7 +31,8 @@ setInterval(() => {
 
 function actualizar(){
   document.getElementById("info").innerHTML =
-    `<h2>Parada ${paradaId}</h2><p>Hora virtual: ${reloj}</p>`;
+    `<h2>Parada ${paradaId}</h2>Hora virtual: ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')};
+
 
   let html = "";
 
