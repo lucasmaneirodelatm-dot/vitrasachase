@@ -1,10 +1,10 @@
-<!doctype html>
-<html lang="es">
+<!DOCTYPE html>
+<html>
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>VITRASA CHASE — Partida</title>
+<meta charset="UTF-8">
+<title>Sala - Vitrasa Chase</title>
 <link rel="stylesheet" href="styles.css">
+<script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
 
@@ -12,30 +12,33 @@
   <img src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/LoaderAvanza.gif">
 </div>
 
-<main id="main" class="hidden">
+  <main class="app">
+  <div class="card">
+    <h2 id="roomTitle">VITRASA CHASE — Sala</h2>
+    <div class="row">
+      <div>
+        <div class="small">Modo: <span id="mode">—</span></div>
+        <div class="small">Jugadores: <span id="players">—</span></div>
+      </div>
+    </div>
 
-  <h1>🎮 Sala de Juego</h1>
-  <p id="info"></p>
+    <div class="row">
+      <!-- iframe donde cargamos parada.html o bus.html -->
+      <iframe id="remoteFrame" class="iframe-full" src=""></iframe>
+    </div>
+    <div id="content">
+    <iframe id="frame" src="parada.html"></iframe>
+</div>
+        <div class="row">
+      <button id="randomParada" class="btn" style="background:#1976d2">Ir a parada aleatoria</button>
+      <button id="leave" class="btn" style="background:#666">Salir</button>
+    </div>
 
-  <div id="vista"></div>
-
+    <div id="log" class="log small"></div>
+  </div>
 </main>
 
-<script src="common.js"></script>
-<script src="sala.js"></script>
-<script>
-waitForResourcesThenShow();
-
-// Jugadores ejemplo
-sala.jugadores = [
-  {nombre:"Jugador 1", rol:"fugitivo"},
-  {nombre:"Jugador 2", rol:"perseguidor"}
-];
-
-// Primera parada al entrar
-cargarVista("parada", {
-  id:"6620",
-  nombre:"Rúa de Policarpo Sanz, 40"
-});
-</script>
+<script src="sala_logic.js"></script>
+<script src="logic.js"></script>
 </body>
+</html>
