@@ -1,61 +1,36 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <title>Bus</title>
 <link rel="stylesheet" href="styles.css">
 <script src="datos.js"></script>
 </head>
 <body>
 
+<h2>🚌 Bus en marcha</h2>
 <h1>🚌 Dentro del Bus</h1>
 <div id="datos"></div>
 
 <button class="btn" onclick="tocarTimbre()">🔔 Tocar timbre</button>
 
 <script>
+  
 const p = new URLSearchParams(window.location.search);
 const busId = p.get("id");
 const bus = BUSES[busId];
 
-let relojLocal = 0;
-let ultimaParada = null;
-
-if (!bus) {
-  document.getElementById("datos").textContent = "Bus no encontrado";
-  throw new Error("Bus no encontrado");
-}
-
+// reloj interno
 setInterval(() => {
-  relojLocal++;
+  reloj++;
   actualizar();
 }, 1000);
 
-function reproducirProximaParada(paradaId){
-  const a1 = new Audio("audio/locuciones/locucion.mp3");
-  const a2 = new Audio("audio/locuciones/prox-parada.mp3");
-  const a3 = new Audio(`audio/paradas/${paradaId}.mp3`);
-
-  a1.play().catch(() => {});
-  a1.onended = () => {
-    a2.play().catch(() => {});
-    a2.onended = () => {
-      a3.play().catch(() => {});
-    };
-  };
-}
-
 function actualizar(){
-  const parada = paradaActual(bus, relojLocal);
-
-  if (parada && parada !== ultimaParada){
-    reproducirProximaParada(parada);
-    ultimaParada = parada;
-  }
-
+  const parada = paradaActual(bus, reloj);
   document.getElementById("datos").innerHTML = `
     <h2>Línea ${bus.linea}</h2>
-    <p>Hora virtual: ${relojLocal}</p>
+    <p>Hora virtual: ${reloj}</p>
     <p>Próxima parada: ${parada}</p>
     <p>Hoja de ruta:</p>
     <ul>
@@ -65,7 +40,7 @@ function actualizar(){
 }
 
 function tocarTimbre(){
-  const destino = paradaActual(bus, relojLocal + 1);
+  const destino = paradaActual(bus, reloj + 1);
   location.href = "parada.html?id=" + destino;
 }
 
