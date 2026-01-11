@@ -8,33 +8,34 @@
 </head>
 <body>
 
-<div id="loader" class="loader"><img src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/LoaderAvanza.gif" alt="loader"></div>
+  <div id="loader" class="loader">
+  <img src="https://raw.githubusercontent.com/lucasmaneirodelatm-dot/vitrasachase/refs/heads/main/LoaderAvanza.gif">
+</div>
 
-  <main id="main" class="hidden container">
-    <header class="card">
-      <h2 id="roomTitle">VITRASA CHASE</h2>
-      <div id="roleBadge" class="roleBadge">Rol: —</div>
-    </header>
+<main id="main" class="hidden">
 
-    <section class="card" id="paradaPanel">
-      <h3 id="paradaInfo">Cargando parada...</h3>
-      <div id="busList"></div>
-      <div id="mapPlaceholder" class="map"></div>
-      <div id="actionButtons" style="margin-top:10px;">
-        <button class="btn hidden" id="cogerBtn">🛑 Coger</button>
-        <button class="btn ghost" id="timbreBtn">🔔 Timbre (solicitar bajada)</button>
-      </div>
-    </section>
-        <section class="card">
-      <h4>Registro</h4>
-      <div id="log" class="log"></div>
-    </section>
+  <h1>🎮 Sala de Juego</h1>
+  <p id="info"></p>
 
-    <section style="margin-top:12px">
-      <button class="btn ghost" id="exitBtn">Salir a menú</button>
-    </section>
-  </main>
+  <div id="vista"></div>
+
+</main>
 
 <script src="common.js"></script>
-<script src="game.js"></script>
+<script src="sala.js"></script>
+<script>
+waitForResourcesThenShow();
+
+// Jugadores ejemplo
+sala.jugadores = [
+  {nombre:"Jugador 1", rol:"fugitivo"},
+  {nombre:"Jugador 2", rol:"perseguidor"}
+];
+
+// Primera parada al entrar
+cargarVista("parada", {
+  id:"6620",
+  nombre:"Rúa de Policarpo Sanz, 40"
+});
+</script>
 </body>
