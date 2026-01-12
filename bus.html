@@ -33,31 +33,24 @@ function nombreParada(id){
 }
 
   
+<script>
 const p = new URLSearchParams(window.location.search);
 const busId = p.get("id");
 const bus = BUSES[busId];
 
-// reloj interno
+// ⏱️ reloj: SOLO avanzar y guardar
 setInterval(() => {
   reloj++;
+  localStorage.setItem("reloj", reloj);
   actualizar();
-const parada = paradaActual(bus, reloj);
-const nextStop = paradaActual(bus, reloj + 1);
-
 }, 1000);
 
 function actualizar(){
   const parada = paradaActual(bus, reloj);
-  const nextStop = paradaActual(bus, reloj + 1);
-
   document.getElementById("datos").innerHTML = `
     <h2>Línea ${bus.linea}</h2>
     <p>Hora virtual: ${reloj}</p>
-    <p>Próxima parada: ${nombreParada(nextStop)}</p>
-    <p>Hoja de ruta:</p>
-    <ul>
-      ${bus.ruta.map(r => `<li>${nombreParada(r)}</li>`).join("")}
-    </ul>
+    <p>Parada actual: ${parada}</p>
   `;
 }
 
