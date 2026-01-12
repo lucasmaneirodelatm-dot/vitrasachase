@@ -17,7 +17,7 @@
 const p = new URLSearchParams(window.location.search);
 const paradaId = p.get("id") || "6620";
 
-// Reloj interno
+// reloj interno
 setInterval(() => {
   reloj++;
   actualizar();
@@ -26,7 +26,9 @@ setInterval(() => {
 function actualizar(){
   document.getElementById("info").innerHTML =
     `<h2>Parada ${paradaId}</h2><p>Hora virtual: ${reloj}</p>`;
-@@ -36,15 +32,16 @@
+
+  let html = "";
+
   for (const id in BUSES){
     const bus = BUSES[id];
     const t = eta(bus, paradaId, reloj);
@@ -36,23 +38,23 @@ function actualizar(){
       <div class="busCard">
         🚌 Línea ${bus.linea}
         <br>⏳ Llega en: ${t} min
-        ${t === 0
+        ${
+          t === 0
           ? `<button class="btn" onclick="coger('${id}')">COGER</button>`
           : `<small>Esperando...</small>`
-        ${t === 0 ? 
-          `<button class='btn' onclick='coger("${id}")'>COGER</button>` :
-          `<small>Esperando...</small>`
         }
       </div>
     `;
-@@ -54,5 +51,9 @@
+  }
+
+  document.getElementById("buses").innerHTML = html;
 }
 
 function coger(busId){
-  const bus = BUSES[busId];
-  const linea
   location.href = "bus.html?id=" + busId;
 }
+
 actualizar();
 </script>
 </body>
+</html>
