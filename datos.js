@@ -4,7 +4,14 @@
 // ================================
 
 // HORA VIRTUAL: los HTML la irán incrementando automáticamente
-let reloj = Number(localStorage.getItem("reloj")) || 480; // en minutos virtuales desde el inicio
+const T0 = Number(localStorage.getItem("T0")) || Date.now();
+localStorage.setItem("T0", T0);
+
+function relojActual(){
+  const segundos = Math.floor((Date.now() - T0) / 1000);
+  return Math.floor(segundos / 60); // minutos virtuales
+}
+
 
 // BUSES DEFINIDOS
 const BUSES = {
