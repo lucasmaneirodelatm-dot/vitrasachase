@@ -8,14 +8,12 @@
 </head>
 <body>
 
-<h2>🚌 Bus en marcha</h2>
 <h1>🚌 Dentro del Bus</h1>
 <div id="datos"></div>
 
 <button class="btn" onclick="tocarTimbre()">🔔 Tocar timbre</button>
 
 <script>
-
 const PARADAS = {
   "3810": "Avda. de Castrelos (Parque)",
   "7870": "Saiáns",
@@ -27,39 +25,30 @@ const PARADAS = {
   "600": "Gran Vía"
   // luego lo ampliarás
 };
-
-function nombreParada(id){
-  return PARADAS[id] || `Parada ${id}`;
-}
-
-  
-<script>
 const p = new URLSearchParams(window.location.search);
 const busId = p.get("id");
 const bus = BUSES[busId];
 
-// ⏱️ reloj: SOLO avanzar y guardar
-setInterval(() => {
-  reloj++;
-  localStorage.setItem("reloj", reloj);
-  actualizar();
-}, 1000);
-
 function actualizar(){
+  const reloj = relojActual();
   const parada = paradaActual(bus, reloj);
+
   document.getElementById("datos").innerHTML = `
     <h2>Línea ${bus.linea}</h2>
     <p>Hora virtual: ${reloj}</p>
-    <p>Parada actual: ${parada}</p>
+    <p>Parada actual: ${parada ?? "En ruta"}</p>
   `;
 }
 
 function tocarTimbre(){
+  const reloj = relojActual();
   const destino = paradaActual(bus, reloj + 1);
   location.href = "parada.html?id=" + destino;
 }
 
+setInterval(actualizar, 1000);
 actualizar();
 </script>
+
 </body>
 </html>
