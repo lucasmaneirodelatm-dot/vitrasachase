@@ -3,14 +3,40 @@
 //  HOJAS DE RUTA Y HORARIOS FIJOS
 // ================================
 
-// HORA VIRTUAL: los HTML la irán incrementando automáticamente
+// HORA VIRTUAL: calculada a partir de T0 (los HTML NO modifican el reloj)
 const T0 = Number(localStorage.getItem("T0")) || Date.now();
 localStorage.setItem("T0", T0);
 
 function relojActual(){
   const segundos = Math.floor((Date.now() - T0) / 1000);
-  return Math.floor(segundos / 60); // minutos virtuales
+  return Math.floor(segundos / 60);
 }
+
+function paradaActual(bus, minuto){
+  if (!bus || !bus.ruta || bus.ruta.length === 0) return null;
+  if (bus.frecuencia <= 0) return null;
+
+  const ciclo = Math.floor((minuto - bus.inicio) / bus.frecuencia);
+  if (ciclo < 0) return null;
+
+  const pos = ciclo % bus.ruta.length;
+  return bus.ruta[pos];
+}
+
+function eta(bus, paradaId, minuto){
+  if (!bus || !bus.ruta || bus.ruta.length === 0) return null;
+  if (bus.frecuencia <= 0) return null;
+
+  const idx = bus.ruta.indexOf(paradaId);
+  if (idx === -1) return null;
+
+  for (let t = minuto; t < minuto + 2000; t++){
+    if (paradaActual(bus, t) === paradaId)
+      return t - minuto;
+  }
+  return null;
+}
+
 
 
 // BUSES DEFINIDOS
@@ -53,7 +79,7 @@ const BUSES = {
   "BUS6159": {
     id: "BUS159",
     linea: "Null",
-    ruta: ["null"],
+    ruta: [],
     frecuencia: 0,
     inicio: 0
   },
@@ -81,14 +107,14 @@ const BUSES = {
   "BUS6203": {
     id: "BUS203",
     linea: "Null",
-    ruta: ["null"],
+    ruta: [],
     frecuencia: 0,
     inicio: 0
   },
   "BUS6204": {
     id: "BUS204",
     linea: "Null",
-    ruta: ["null"],
+    ruta: [],
     frecuencia: 0,
     inicio: 0
   },
@@ -102,21 +128,21 @@ const BUSES = {
   "BUS6210": {
     id: "BUS210",
     linea: "L11", 
-    ruta: ["00"],
+    ruta: [],
     frecuencia: 12,
     inicio: 3
   },
   "BUS6225": {
     id: "BUS225",
     linea: "c3",
-    ruta: ["00"],
+    ruta: [],
     frecuencia: 12,
     inicio: 3
   },
   "BUS6235": {
     id: "BUS235",
     linea: "L15a",
-    ruta: ["00"],
+    ruta: [],
     frecuencia: 12,
     inicio: 3
   },
@@ -129,15 +155,15 @@ const BUSES = {
   },
   "BUS6800": {
     id: "BUS800",
-    linea: "L4A",",
-    ruta: ["00"],
+    linea: "L4A",
+    ruta: [],
     frecuencia: 12,
     inicio: 3
   },
   "BUS6823": {
     id: "BUS823",
     linea: "L12B",
-    ruta: ["00"],
+    ruta: [],
     frecuencia: 12,
     inicio: 3
   },
@@ -175,8 +201,12 @@ const BUSES = {
 // CÁLCULO DE EN QUÉ PARADA ESTÁ UN BUS
 // ========================================
 function paradaActual(bus, minuto){
+  if (!bus.ruta || bus.ruta.length === 0) return null;
+  if (bus.frecuencia <= 0) return null;
+
   const ciclo = Math.floor((minuto - bus.inicio) / bus.frecuencia);
   if (ciclo < 0) return null;
+
   const pos = ciclo % bus.ruta.length;
   return bus.ruta[pos];
 }
@@ -185,13 +215,16 @@ function paradaActual(bus, minuto){
 // TIEMPO QUE FALTA PARA QUE UN BUS PASE
 // ========================================
 function eta(bus, paradaId, minuto){
+  if (!bus.ruta || bus.ruta.length === 0) return null;
+  if (bus.frecuencia <= 0) return null;
+
   const idx = bus.ruta.indexOf(paradaId);
   if (idx === -1) return null;
 
-  // buscamos el siguiente momento en que bus está ahí
-  for (let t=minuto; t<minuto+2000; t++){
+  for (let t = minuto; t < minuto + 2000; t++){
     if (paradaActual(bus, t) === paradaId)
       return t - minuto;
   }
   return null;
 }
+
